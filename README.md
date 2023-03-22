@@ -1,0 +1,1 @@
+# static-chain-analysis-web
