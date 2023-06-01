@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Config 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hsf.admin.Mapper.ProjectInfoMapper">
+    <resultMap id="projectInfo" type="com.hsf.admin.Pojo.Entities.ProjectInfo">
+        <id column="id" property="id" jdbcType="INTEGER" />
+        <result column="node_id" property="nodeId" jdbcType="INTEGER" />
+        <result column="path" property="path" jdbcType="VARCHAR" />
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+        <result column="update_time" property="updateTime" jdbcType="TIMESTAMP" />
+        <result column="last_sync_time" property="lastSyncTime" jdbcType="TIMESTAMP" />
+    </resultMap>
+
+    <select id="getProjectInfo" resultType="com.hsf.admin.Pojo.Entities.ProjectInfo">
+        select id, node_id, path, create_time, update_time, last_sync_time from project_git_info where node_id = #{nodeId}
+    </select>
+
+    <insert id="insertProjectInfo" parameterType="com.hsf.admin.Pojo.Entities.ProjectInfo">
+        insert into project_git_info (node_id)
+        values(#{info.nodeId})
+    </insert>
+
+    <update id="updateProjectInfo" parameterType="com.hsf.admin.Pojo.Entities.ProjectInfo">
+        update project_git_info
+        set path = #{info.path}, last_sync_time = #{info.lastSyncTime}
+        where node_id = #{info.nodeId}
+    </update>
+
+    <select id="checkBranchDirSyncTime" resultType="java.lang.Boolean">
+        select
+            if(t2.cnt > 0 and t1.last_sync_time = t2.last_sync_time, true, false) as result
+        from
+            project_git_info t1 left join (
+                select
+                    project_id, branch_name, path, last_sync_time, count(1) as cnt
+                from
+                    branch_dir_info
+                where
+                    branch_name = #{branchName}
+                group by
+                    project_id, branch_name, path, last_sync_time
+            ) t2 on t1.id = t2.project_id
+        where
+            t1.node_id = #{nodeId};
+    </select>
+</mapper>

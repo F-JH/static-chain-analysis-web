@@ -1,0 +1,17 @@
+server:
+    port: 8089
+spring:
+    datasource:
+        analysis:
+            username: root
+            password: 972583048
+            jdbc-url: jdbc:mysql://qqbot.xiaoandi.ml:3306/Analysis?allowMultiQueries=true&serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf-8
+            driver-class-name: com.mysql.cj.jdbc.Driver
+    jackson:
+        date-format: yyyy-MM-dd HH:mm:ss
+        time-zone: Asia/Shanghai
+env:
+    tmpDir: tmp
+#mybatis:
+#    mapper-locations: classpath:mybatis/mapper/*.xml
+#    type-aliases-package: com.hsf.admin.pojo.Entities

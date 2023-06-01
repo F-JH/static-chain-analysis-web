@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Config 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hsf.admin.Mapper.TaskInfoMapper">
+    <resultMap id="TaskInfo" type="com.hsf.admin.Pojo.Entities.TaskInfo">
+        <result column="id" property="id" jdbcType="INTEGER" />
+        <result column="type" property="type" jdbcType="VARCHAR" />
+        <result column="node_id" property="nodeId" jdbcType="INTEGER" />
+        <result column="detail_info" property="detailInfo" jdbcType="VARCHAR" />
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+        <result column="update_time" property="updateTime" jdbcType="TIMESTAMP" />
+        <result column="status" property="status" jdbcType="INTEGER" />
+    </resultMap>
+
+    <select id="getTaskInfo" resultMap="TaskInfo" >
+        select id, type, node_id, detail_info, create_time, update_time, status from task_info where id = #{taskId}
+    </select>
+
+    <select id="getDiffTasks" resultMap="TaskInfo">
+        select
+            id, type, node_id, detail_info, create_time, update_time, status
+        from task_info
+        where node_id = #{nodeId} and type = 'diff'
+        order by create_time desc
+    </select>
+
+    <insert id="initTask" parameterType="com.hsf.admin.Pojo.Entities.TaskInfo" useGeneratedKeys="true">
+        insert into task_info (type, node_id, detail_info)
+        values (#{task.type}, #{task.nodeId}, #{task.detailInfo});
+        <selectKey resultType="java.lang.Integer" keyProperty="task.id" order="AFTER">
+            select LAST_INSERT_ID();
+        </selectKey>
+    </insert>
+
+    <update id="updateTaskInfo" parameterType="com.hsf.admin.Pojo.Entities.TaskInfo">
+        update task_info
+        set
+            node_id = #{task.nodeId}, detail_info = #{task.detailInfo}, status = #{task.status}, type = #{task.type}
+        where
+            id = #{task.id};
+    </update>
+
+    <select id="checkTaskRunning" resultType="java.lang.Boolean">
+        select
+            if(status in (0, 1, 4), true, false) as result
+        from
+            task_info
+        where
+            id = #{taskId}
+    </select>
+
+    <select id="checkAnalysisTaskExists" resultType="java.lang.Integer">
+        select
+            id
+        from
+            task_info
+        where
+            node_id = #{nodeId}
+            and `type` = 'diff'
+            and status in (0, 1, 4)
+            and JSON_EXTRACT(detail_info, '$.base') = #{compareInfo.base}
+            and JSON_EXTRACT(detail_info, '$.compare') = #{compareInfo.compare}
+            and JSON_EXTRACT(detail_info, '$.baseCommitId') = #{compareInfo.baseCommitId}
+            and JSON_EXTRACT(detail_info, '$.compareCommitId') = #{compareInfo.compareCommitId}
+    </select>
+</mapper>

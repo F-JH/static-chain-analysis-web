@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Config 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hsf.admin.Mapper.AnalysisSimpleReportMapper">
+    <resultMap id="AnalysisSimpleReport" type="com.hsf.admin.Pojo.Entities.AnalysisSimpleReport">
+        <result column="task_id" property="taskId" jdbcType="INTEGER" />
+        <result column="type" property="type" jdbcType="VARCHAR" />
+        <result column="api_name" property="apiName" jdbcType="VARCHAR" />
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+        <result column="update_time" property="updateTime" jdbcType="TIMESTAMP" />
+    </resultMap>
+
+    <select id="getReportByTaskId" resultMap="AnalysisSimpleReport">
+        select
+            task_id, `type`, api_name, create_time, update_time
+        from
+            analysis_simple_report
+        where
+            task_id = ${taskId}
+    </select>
+
+    <insert id="insertReports" parameterType="com.hsf.admin.Pojo.Entities.AnalysisSimpleReport">
+        insert into analysis_simple_report(task_id, type, api_name)
+        values
+            <foreach collection="results" item="item" index="index" separator=",">
+                (#{item.taskId}, #{item.type}, #{item.apiName})
+            </foreach>
+    </insert>
+</mapper>

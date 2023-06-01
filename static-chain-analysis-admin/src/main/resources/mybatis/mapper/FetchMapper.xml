@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Config 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hsf.admin.Mapper.FetchMapper">
+    <resultMap id="FetchInfo" type="com.hsf.admin.Pojo.Entities.FetchInfo">
+        <result column="git_url" property="gitUrl" jdbcType="VARCHAR" />
+        <result column="status" property="status" jdbcType="INTEGER" />
+        <result column="path" property="path" jdbcType="VARCHAR" />
+        <result column="last_sync_time" property="lastSyncTime" jdbcType="TIMESTAMP" />
+        <result column="credential_name" property="credentialName" jdbcType="VARCHAR" />
+        <result column="credential_username" property="credentialUsername" jdbcType="VARCHAR" />
+        <result column="credential_password" property="credentialPassword" jdbcType="VARCHAR" />
+        <result column="publi_key" property="publiKey" jdbcType="VARCHAR" />
+        <result column="private_key" property="privateKey" jdbcType="VARCHAR" />
+        <result column="passphrase" property="passphrase" jdbcType="VARCHAR" />
+    </resultMap>
+
+    <select id="getFetchInfo" resultMap="FetchInfo">
+        select
+            t1.git_url,
+            t1.status,
+            t2.path,
+            t2.last_sync_time,
+            t3.name as credential_name,
+            t3.username as credential_username,
+            t3.password as credential_password,
+            t3.public_key,
+            t3.private_key,
+            t3.passphrase
+        from
+            file_tree_info t1 left join project_git_info t2 on t1.node_id = t2.node_id
+            left join credential_info t3 on t1.credential_id = t3.id
+        where
+            t1.node_id = #{nodeId};
+    </select>
+
+    <update id="updateFileNodeStatus">
+        update file_tree_info set status = #{status}
+        where node_id = #{nodeId}
+    </update>
+</mapper>
