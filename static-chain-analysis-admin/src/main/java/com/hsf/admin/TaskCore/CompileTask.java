@@ -7,8 +7,10 @@ import com.hsf.admin.Pojo.Entities.ProjectInfo;
 import com.hsf.admin.Pojo.Entities.TaskInfo;
 import com.hsf.admin.TaskCore.Interface.CallBack;
 import com.hsf.tools.Utils.BasicUtil;
+import com.mysql.cj.util.StringUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.maven.shared.invoker.*;
+import org.eclipse.jetty.util.StringUtil;
 
 import java.io.File;
 import java.io.IOException;
@@ -29,10 +31,13 @@ public class CompileTask implements Runnable{
     private ProjectInfo projectInfo;
     private ProjectInfoMapper projectInfoMapper;
     private CallBack callBack;
+    private String mavenHome ;
+    private String javaHome;
 
     public CompileTask(
         Integer nodeId, String branchName, String commitId, TaskInfo taskInfo, ProjectInfo projectInfo,
-        ProjectInfoMapper projectInfoMapper, TaskInfoMapper taskInfoMapper, CallBack callBack
+        ProjectInfoMapper projectInfoMapper, TaskInfoMapper taskInfoMapper, CallBack callBack, String mavenHome,
+        String javaHome
     ){
         this.nodeId = nodeId;
         this.branchName = branchName;
@@ -42,6 +47,8 @@ public class CompileTask implements Runnable{
         this.projectInfo = projectInfo;
         this.projectInfoMapper = projectInfoMapper;
         this.callBack = callBack;
+        this.mavenHome = mavenHome;
+        this.javaHome = javaHome;
     }
     @Override
     public void run() {
@@ -62,9 +69,12 @@ public class CompileTask implements Runnable{
             }
         });
 
-        // 这里我直接设置本机的maven和Java路径了，懒得再写给用户配置
-        invoker.setMavenHome(new File("/usr/local/apache-maven-3.9.2"));
-        request.setJavaHome(new File("/Library/Java/JavaVirtualMachines/jdk1.8.0_351.jdk/Contents/Home"));
+        if (!StringUtil.isBlank(mavenHome)){
+            invoker.setMavenHome(new File(mavenHome));
+        }
+        if (!StringUtil.isBlank(javaHome)){
+            request.setJavaHome(new File(javaHome));
+        }
 
         try{
             InvocationResult result = invoker.execute(request);

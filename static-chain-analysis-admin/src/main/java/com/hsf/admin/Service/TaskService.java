@@ -21,6 +21,7 @@ import org.apache.ibatis.session.SqlSessionFactory;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.scheduling.config.Task;
 import org.springframework.stereotype.Service;
@@ -37,27 +38,25 @@ import static com.hsf.tools.Config.Code.URL_SPLIT;
 
 @Service
 public class TaskService {
+
+    @Value("${env.mavenHome}")
+    private String mavenHome;
+    @Value("${env.javaHome}")
+    private String javaHome;
     @Resource
     FetchMapper fetchMapper;
-
     @Resource
     BranchDirInfoMapper branchDirInfoMapper;
-
     @Resource
     ProjectInfoMapper projectInfoMapper;
-
     @Resource
     TaskInfoMapper taskInfoMapper;
-
     @Resource
     CredentialInfoMapper credentialInfoMapper;
-
     @Resource
     AnalysisSimpleReportMapper analysisSimpleReportMapper;
-
     @Autowired
     ScanService scanService;
-
     @Autowired
     ThreadPoolExecutor threadPoolExecutor;
 
@@ -197,7 +196,8 @@ public class TaskService {
         };
 
         threadPoolExecutor.execute(new CompileTask(
-            nodeId, branchName, commitId, taskInfo, projectInfo, projectInfoMapper, taskInfoMapper, callBack
+            nodeId, branchName, commitId, taskInfo, projectInfo, projectInfoMapper, taskInfoMapper, callBack,
+            mavenHome, javaHome
         ));
         return callBack;
     }
