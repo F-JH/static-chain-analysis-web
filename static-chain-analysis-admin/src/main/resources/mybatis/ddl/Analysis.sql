@@ -1,3 +1,4 @@
+create database if not exists Analysis;
 use `Analysis`;
 
 create table if not exists credential_info(
