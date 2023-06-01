@@ -3,9 +3,9 @@ server:
 spring:
     datasource:
         analysis:
-            username: root
-            password: 972583048
-            jdbc-url: jdbc:mysql://qqbot.xiaoandi.ml:3306/Analysis?allowMultiQueries=true&serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf-8
+            username: your_username
+            password: your_password
+            jdbc-url: jdbc:mysql://www.example.com:3306/Analysis?allowMultiQueries=true&serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf-8
             driver-class-name: com.mysql.cj.jdbc.Driver
     jackson:
         date-format: yyyy-MM-dd HH:mm:ss
