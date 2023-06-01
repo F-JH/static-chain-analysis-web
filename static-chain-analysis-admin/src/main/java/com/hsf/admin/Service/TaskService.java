@@ -43,6 +43,8 @@ public class TaskService {
     private String mavenHome;
     @Value("${env.javaHome}")
     private String javaHome;
+    @Value("${env.mavenSettings}")
+    private String mavenSettings;
     @Resource
     FetchMapper fetchMapper;
     @Resource
@@ -196,8 +198,8 @@ public class TaskService {
         };
 
         threadPoolExecutor.execute(new CompileTask(
-            nodeId, branchName, commitId, taskInfo, projectInfo, projectInfoMapper, taskInfoMapper, callBack,
-            mavenHome, javaHome
+            branchName, commitId, taskInfo, projectInfo, taskInfoMapper, callBack,
+            mavenHome, mavenSettings, javaHome
         ));
         return callBack;
     }

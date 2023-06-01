@@ -13,4 +13,5 @@ spring:
 env:
     tmpDir: tmp
     mavenHome: /usr/local/apache-maven-3.9.2
+    mavenSettings: /Users/xiaoandi/.m2/settings.xml
     javaHome: /Library/Java/JavaVirtualMachines/jdk1.8.0_351.jdk/Contents/Home

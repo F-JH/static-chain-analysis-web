@@ -23,31 +23,29 @@ import static com.hsf.tools.Config.Code.URL_SPLIT;
 
 @Slf4j
 public class CompileTask implements Runnable{
-    private TaskInfo taskInfo;
-    private TaskInfoMapper taskInfoMapper;
-    private Integer nodeId;
-    private String branchName;
-    private String commitId;
-    private ProjectInfo projectInfo;
-    private ProjectInfoMapper projectInfoMapper;
-    private CallBack callBack;
-    private String mavenHome ;
-    private String javaHome;
+    private final TaskInfo taskInfo;
+    private final TaskInfoMapper taskInfoMapper;
+    private final String branchName;
+    private final String commitId;
+    private final ProjectInfo projectInfo;
+    private final CallBack callBack;
+    private final String mavenHome ;
+    private final String javaHome;
+    private final String mavenSettings;
 
     public CompileTask(
-        Integer nodeId, String branchName, String commitId, TaskInfo taskInfo, ProjectInfo projectInfo,
-        ProjectInfoMapper projectInfoMapper, TaskInfoMapper taskInfoMapper, CallBack callBack, String mavenHome,
+        String branchName, String commitId, TaskInfo taskInfo, ProjectInfo projectInfo,
+        TaskInfoMapper taskInfoMapper, CallBack callBack, String mavenHome, String mavenSettings,
         String javaHome
     ){
-        this.nodeId = nodeId;
         this.branchName = branchName;
         this.commitId = commitId;
         this.taskInfo = taskInfo;
         this.taskInfoMapper = taskInfoMapper;
         this.projectInfo = projectInfo;
-        this.projectInfoMapper = projectInfoMapper;
         this.callBack = callBack;
         this.mavenHome = mavenHome;
+        this.mavenSettings = mavenSettings;
         this.javaHome = javaHome;
     }
     @Override
@@ -59,7 +57,7 @@ public class CompileTask implements Runnable{
         InvocationRequest request = new DefaultInvocationRequest();
         request.setPomFile(new File(projectDir + URL_SPLIT + POM));
         request.setGoals(Arrays.asList("clean", "compile"));
-        request.setUserSettingsFile(new File("/Users/xiaoandi/.m2/settings_shopline.xml"));
+        request.setUserSettingsFile(new File(mavenSettings));
         Invoker invoker = new DefaultInvoker();
         // 设置日志级别
         invoker.setLogger(new PrintStreamLogger(System.err, InvokerLogger.ERROR));
