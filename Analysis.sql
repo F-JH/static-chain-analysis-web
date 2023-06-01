@@ -69,7 +69,7 @@ create table if not exists analysis_simple_report (
 
 
 
--- 下面是分析详情表，本期先不做
+-- 下面是分析详情表，打算用来画UML图，但目前还没做
 create table if not exists analysis_method_relationship (
     task_id int(12) unsigned not null,
     class_name varchar(200) not null comment 'class name',
