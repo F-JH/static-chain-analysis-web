@@ -12,7 +12,7 @@ create table if not exists credential_info(
     is_delete boolean default false
 ) AUTO_INCREMENT = 0 comment='凭据信息';
 
---左右值编码存储树形结构
+-- 左右值编码存储树形结构
 create table if not exists file_tree_info (
     node_id int(11) not null primary key auto_increment,
     parent_id int(11) unsigned not null default 0,

@@ -12,7 +12,7 @@ create table if not exists credential_info(
     is_delete boolean default false
 ) AUTO_INCREMENT = 0 comment='凭据信息';
 
---左右值编码存储树形结构
+-- 左右值编码存储树形结构
 create table if not exists file_tree_info (
     node_id int(11) not null primary key auto_increment,
     parent_id int(11) unsigned not null default 0,
@@ -70,7 +70,7 @@ create table if not exists analysis_simple_report (
 
 
 
--- 下面是分析详情表，打算用来画UML图，但目前还没做
+-- 下面是分析详情表，本期先不做
 create table if not exists analysis_method_relationship (
     task_id int(12) unsigned not null,
     class_name varchar(200) not null comment 'class name',
