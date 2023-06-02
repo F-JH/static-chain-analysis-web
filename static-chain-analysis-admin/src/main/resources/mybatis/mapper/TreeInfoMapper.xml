@@ -47,4 +47,42 @@
         </selectKey>
     </insert>
 
+    <insert id="addNodeV2" parameterType="com.hsf.admin.Pojo.Requests.GitInfoRequest" useGeneratedKeys="true">
+        <if test="node.tree.isDirectory">
+            select
+                @nodeLft := ifnull(lft, rgt)
+            from (
+                select
+                    t1.rgt, t2.lft
+                from
+                    file_tree_info t1 left join (
+                        select lft, parent_id from file_tree_info where parent_id = #{node.tree.parentId} and is_directory = 0
+                    ) t2 on t1.node_id = t2.parent_id
+                where
+                    t1.node_id = #{node.tree.parentId}
+                order by t2.lft
+                limit 1
+            ) f;
+            update file_tree_info set lft = lft + 2 where lft >= @nodeLft;
+            update file_tree_info set rgt = rgt + 2 where rgt >= @nodeLft;
+        </if>
+        <if test="!node.tree.isDirectory">
+            select @nodeLft := rgt from file_tree_info where node_id = #{node.tree.parentId};
+            update file_tree_info set rgt = rgt + 2 where rgt >= @nodeLft;
+            update file_tree_info set lft = lft + 2 where lft > @nodeLft;
+        </if>
+        insert into file_tree_info (parent_id, name, lft, rgt, git_url, credential_id, is_directory)
+        values (#{node.tree.parentId}, #{node.name}, @nodeLft, @nodeLft + 1, #{node.gitUrl}, #{node.credentialsProviderId}, #{node.tree.isDirectory});
+        <selectKey resultType="java.lang.Integer" keyProperty="result.nodeId" order="AFTER">
+            select LAST_INSERT_ID();
+        </selectKey>
+    </insert>
+
+<!--    删除节点，子节点一起删除-->
+    <delete id="deleteNode" parameterType="java.lang.Integer">
+        select @nodeLft := lft, @nodeRgt := rgt from file_tree_info where node_id = #{nodeId};
+        delete from file_tree_info where lft >= @nodeLft and rgt &lt;= @nodeRgt;
+        update file_tree_info set lft = lft - @nodeRgt + @nodeLft - 1 where lft > @nodeRgt;
+        update file_tree_info set rgt = rgt - @nodeRgt + @nodeLft - 1 where rgt > @nodeRgt;
+    </delete>
 </mapper>

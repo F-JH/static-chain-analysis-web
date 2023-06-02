@@ -333,7 +333,7 @@ export default defineComponent({
                         })
                     }
                 })
-                await sleep(2000)
+                await sleep(10000)
             }
         },
         showAnalysisReport(nodeId:number){
@@ -447,9 +447,20 @@ export default defineComponent({
                 message: '开发者太懒了，这个功能还没实现...',
                 type: 'warning'
             })
+        },
+        isAbleCall(nodeId:number){
+            if (
+                this.compareBranch[nodeId].base !== '' && this.compareBranch[nodeId].baseCommitId !== ''
+                && this.compareBranch[nodeId].compare !== '' && this.compareBranch[nodeId].compareCommitId !== ''
+            ){
+                return false
+            }else {
+                return true
+            }
         }
     },
     created() {
+        console.log('version 2')
         this.getTree();
     }
 })
@@ -582,7 +593,7 @@ export default defineComponent({
                             </div>
                             <span class="text-span" v-if="enableSelectCommitId[item.id]">
                                 选择CommitId
-                                <el-tooltip content="精确选择具体的commit tag，建议查看git log定位，不选则默认为最新的tag" placement="top">
+                                <el-tooltip content="精确选择具体的commit tag，建议查看git log定位" placement="top">
                                     <el-icon><QuestionFilled /></el-icon>
                                 </el-tooltip>
                             </span>
@@ -616,7 +627,7 @@ export default defineComponent({
                             <div style="width: 66px"></div>
                             <span class="text-span" v-if="enableSelectCommitId[item.id]">
                                 选择CommitId
-                                <el-tooltip effect="dark" content="精确选择具体的commit tag，建议查看git log定位，不选则默认为最新的tag" placement="top">
+                                <el-tooltip effect="dark" content="精确选择具体的commit tag，建议查看git log定位" placement="top">
                                     <el-icon><QuestionFilled /></el-icon>
                                 </el-tooltip>
                             </span>
@@ -635,7 +646,7 @@ export default defineComponent({
 <!--                            -->
 <!--                        </div>-->
                         <div style="display: flex; margin-bottom: 20px">
-                            <el-button @click="callAnalysis(item.id)" type="primary" :loading="isAnalysis[item.id]">
+                            <el-button @click="callAnalysis(item.id)" type="primary" :loading="isAnalysis[item.id]" :disabled="isAbleCall(item.id)">
                                 执行分析
                             </el-button>
                             <el-button @click="showAnalysisReport(item.id)">

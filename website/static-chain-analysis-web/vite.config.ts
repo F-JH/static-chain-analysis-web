@@ -8,8 +8,8 @@ import { ElementPlusResolver } from 'unplugin-vue-components/resolvers'
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  base: './',
-  plugins: [
+    base: './',
+    plugins: [
       vue(),
       AutoImport({
           resolvers: [ElementPlusResolver()],
@@ -17,13 +17,13 @@ export default defineConfig({
       Components({
           resolvers: [ElementPlusResolver()],
       })
-  ],
-  resolve: {
+    ],
+    resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url))
     }
-  },
-  server:  {
+    },
+    server:  {
       cors: true,
       open: true,
       port: 5173,
@@ -36,8 +36,8 @@ export default defineConfig({
           '^/api': {
               target: 'http://localhost:8089/',
               changeOrigin: true,
-              // rewrite: (path) => path.replace(/^\/api/, '')
+              rewrite: (path) => path.replace(/^\/api/, '')
           }
       }
-  }
+    }
 })

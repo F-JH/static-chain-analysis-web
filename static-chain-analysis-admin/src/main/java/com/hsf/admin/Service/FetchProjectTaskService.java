@@ -51,7 +51,7 @@ public class FetchProjectTaskService {
         FetchInfo fetchInfo = fetchMapper.getFetchInfo(nodeId);
         // 检查是否存在项目
         ProjectInfo projectInfo = projectInfoMapper.getProjectInfo(nodeId);
-        if (projectInfo != null){
+        if (projectInfo != null && projectInfo.getPath() != null){
             File project = new File(projectInfo.getPath());
             if (project.exists() && project.listFiles().length != 0){
                 taskInfo.setType(TaskType.PULL.code);

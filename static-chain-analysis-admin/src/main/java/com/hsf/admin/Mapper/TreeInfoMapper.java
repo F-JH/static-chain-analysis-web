@@ -14,4 +14,5 @@ public interface TreeInfoMapper {
     public Boolean isDirectory(@Param("nodeId") Integer nodeId);
 
     public Integer addNode(@Param("node")GitInfoRequest gitInfoRequest, @Param("result")TreeInfo treeInfo);
+    public Integer addNodeV2(@Param("node")GitInfoRequest gitInfoRequest, @Param("result")TreeInfo treeInfo);
 }

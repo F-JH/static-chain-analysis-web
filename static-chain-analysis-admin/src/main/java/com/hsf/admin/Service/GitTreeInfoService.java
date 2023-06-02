@@ -66,7 +66,7 @@ public class GitTreeInfoService {
             return -1;
         readWriteLock.writeLock().lock();
         TreeInfo res = new TreeInfo();
-        treeInfoMapper.addNode(gitInfo, res);
+        treeInfoMapper.addNodeV2(gitInfo, res);
         if (gitInfo.getTree().getIsDirectory()){
             readWriteLock.writeLock().unlock();
             return res.getNodeId();
