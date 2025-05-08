@@ -1,5 +1,6 @@
 package com.hsf.core.Visitors;
 
+import com.hsf.core.Enums.JdkVersionEnum;
 import com.hsf.core.Recorders.ApiRecord;
 import com.hsf.core.Recorders.ControllerRecord;
 import com.hsf.core.Recorders.ProjectRecord;
@@ -28,13 +29,15 @@ public class RelationMethodVisitor extends AdviceAdapter{
     private final Set<String> parentPath;
     private Set<String> requestMappingValue;
     private final Map<String, Set<String>> recordMapping;
+    private final JdkVersionEnum jdkVersionEnum;
 
     public RelationMethodVisitor(
+            JdkVersionEnum jdkVersionEnum,
         int access, String methodName, String desc, MethodVisitor mv, ProjectRecord projectRecord, ApiRecord apiRecord,
         ControllerRecord controllerRecord, List<String> relationShip, String className, Set<String> parentPath, Map<String,
         Set<String>> recordMapping
     ){
-        super(ASM7, mv, access, methodName, desc);
+        super(jdkVersionEnum.getCode(), mv, access, methodName, desc);
         this.methodName = methodName;
         this.apiRecord = apiRecord;
         this.projectRecord = projectRecord;
@@ -44,6 +47,7 @@ public class RelationMethodVisitor extends AdviceAdapter{
         this.className = className;
         this.parentPath = parentPath;
         this.recordMapping = recordMapping;
+        this.jdkVersionEnum = jdkVersionEnum;
     }
 
     @Override
@@ -62,7 +66,7 @@ public class RelationMethodVisitor extends AdviceAdapter{
             requestMappingValue = new HashSet<>();
             // 这里去获取方法的 requestMappingValue
             // 故而：requestMappingValue记录自己的，parentPath上一级(比如类)传过来的 requestMappingValue
-            return new RelationAnnotationVisitor(super.visitAnnotation(descriptor, visiable), requestMappingValue, parentPath);
+            return new RelationAnnotationVisitor(jdkVersionEnum, super.visitAnnotation(descriptor, visiable), requestMappingValue, parentPath);
         }
         return super.visitAnnotation(descriptor, visiable);
     }

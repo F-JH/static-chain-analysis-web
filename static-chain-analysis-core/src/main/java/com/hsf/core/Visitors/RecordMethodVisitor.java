@@ -1,13 +1,12 @@
 package com.hsf.core.Visitors;
 
+import com.hsf.core.Enums.JdkVersionEnum;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.commons.AdviceAdapter;
 
-import static org.objectweb.asm.Opcodes.ASM7;
-
 public class RecordMethodVisitor extends AdviceAdapter {
-    public RecordMethodVisitor(MethodVisitor mv, int access, String methodName, String desc){
-        super(ASM7, mv, access, methodName, desc);
+    public RecordMethodVisitor(JdkVersionEnum jdkVersion, MethodVisitor mv, int access, String methodName, String desc){
+        super(jdkVersion.getCode(), mv, access, methodName, desc);
     }
 
     @Override

@@ -3,12 +3,17 @@ package com.hsf.admin.Service;
 import com.alibaba.fastjson.JSONObject;
 import com.hsf.admin.Code.TaskStatus;
 import com.hsf.admin.Code.TaskType;
+import com.hsf.admin.Dto.Task.AnalysisTaskDTO;
+import com.hsf.admin.Dto.Task.CompileTaskDTO;
+import com.hsf.admin.Dto.Task.CopyTaskDTO;
+import com.hsf.admin.Enums.TaskTypeEnum;
 import com.hsf.admin.Mapper.*;
 import com.hsf.admin.Pojo.Entities.BranchDirInfo;
 import com.hsf.admin.Pojo.Entities.CredentialInfo;
 import com.hsf.admin.Pojo.Entities.ProjectInfo;
 import com.hsf.admin.Pojo.Entities.TaskInfo;
 import com.hsf.admin.Pojo.Requests.CompareInfo;
+import com.hsf.admin.Pojo.Requests.TaskExecutionRequest;
 import com.hsf.admin.TaskCore.*;
 import com.hsf.admin.TaskCore.Interface.CallBack;
 import com.hsf.admin.TaskCore.Interface.PreRun;
@@ -62,6 +67,9 @@ public class TaskService {
     @Autowired
     ThreadPoolExecutor threadPoolExecutor;
 
+    @Resource
+    TaskExecutionService taskExecutionService;
+
     private final ReentrantReadWriteLock copyBranchLock = new ReentrantReadWriteLock();
     private final ReentrantLock copyCommitLock = new ReentrantLock();
     private final ReentrantLock callAnalysisLock = new ReentrantLock();
@@ -103,30 +111,37 @@ public class TaskService {
             branchDirInfo.setRunningTaskId(taskInfo.getId());
             branchDirInfoMapper.insertBranchDirInfo(branchDirInfo);
             copyBranchLock.writeLock().unlock();
-
-            threadPoolExecutor.execute(new CopyTask(
-                projectInfo.getPath() + URL_SPLIT + "master", branchCodePath,
-                taskInfoMapper, taskInfo,
-                new CallBack() {
-                    @Override
-                    public void run() {
-                        branchDirInfo.setRunningTaskId(null);
-                        branchDirInfo.setLastSyncTime(projectInfo.getLastSyncTime());
-                        branchDirInfoMapper.insertBranchDirInfo(branchDirInfo);
-                        // 切换到该分支
-                        CredentialInfo credentialInfo = credentialInfoMapper.getCredentialByNodeId(nodeId);
-                        UsernamePasswordCredentialsProvider usernamePasswordCredentialsProvider = new UsernamePasswordCredentialsProvider(credentialInfo.getUsername(), credentialInfo.getPassword());
-                        GitUtils.checkoutBranch(new File(branchCodePath), branchName, usernamePasswordCredentialsProvider);
-                    }
-                    @Override
-                    public Boolean isSuccess(){
-                        return true;
-                    }
-
-                    @Override
-                    public void setResult(Boolean isSuccess) {}
+            CallBack callBack = new CallBack() {
+                @Override
+                public void run() {
+                    branchDirInfo.setRunningTaskId(null);
+                    branchDirInfo.setLastSyncTime(projectInfo.getLastSyncTime());
+                    branchDirInfoMapper.insertBranchDirInfo(branchDirInfo);
+                    // 切换到该分支
+                    CredentialInfo credentialInfo = credentialInfoMapper.getCredentialByNodeId(nodeId);
+                    UsernamePasswordCredentialsProvider usernamePasswordCredentialsProvider = new UsernamePasswordCredentialsProvider(credentialInfo.getUsername(), credentialInfo.getPassword());
+                    GitUtils.checkoutBranch(new File(branchCodePath), branchName, usernamePasswordCredentialsProvider);
                 }
-            ));
+                @Override
+                public Boolean isSuccess(){
+                    return true;
+                }
+
+                @Override
+                public void setResult(Boolean isSuccess) {}
+            };
+            TaskExecutionRequest<CopyTaskDTO> request = new TaskExecutionRequest<>();
+            request.setTaskType(TaskTypeEnum.COPY_TASK);
+            request.setTaskPO(
+                    CopyTaskDTO.builder()
+                            .srcPath(projectInfo.getPath() + URL_SPLIT + "master")
+                            .dstPath(branchCodePath)
+                            .taskInfoMapper(taskInfoMapper)
+                            .taskInfo(taskInfo)
+                            .callBack(callBack)
+                            .build()
+            );
+            taskExecutionService.createAsyncTask(request);
             return taskInfo.getId();
         }finally {
             if (copyBranchLock.writeLock().isHeldByCurrentThread())
@@ -150,30 +165,36 @@ public class TaskService {
         taskInfo.setDetailInfo(detail.toJSONString());
         taskInfoMapper.initTask(taskInfo);
 
-//        ProjectInfo projectInfo = projectInfoMapper.getProjectInfo(nodeId);
         String fullPath = BasicUtil.getBranchFullPath(projectInfo.getPath(), branchName, commitId);
-
-        threadPoolExecutor.execute(new CopyTask(
-            BasicUtil.getBranchFullPath(projectInfo.getPath(), branchName, null), fullPath,
-            taskInfoMapper, taskInfo,
-            new CallBack() {
-                @Override
-                public void run() {
-                    // reset到指定commit id
-                    try{
-                        GitUtils.setHEAD(new File(fullPath), commitId);
-                    }catch (Exception e){
-                        throw new RuntimeException(e);
-                    }
+        CallBack callBack = new CallBack() {
+            @Override
+            public void run() {
+                // reset到指定commit id
+                try{
+                    GitUtils.setHEAD(new File(fullPath), commitId);
+                }catch (Exception e){
+                    throw new RuntimeException(e);
                 }
-                @Override
-                public Boolean isSuccess(){
-                    return true;
-                }
-                @Override
-                public void setResult(Boolean isSuccess) {}
             }
-        ));
+            @Override
+            public Boolean isSuccess(){
+                return true;
+            }
+            @Override
+            public void setResult(Boolean isSuccess) {}
+        };
+        TaskExecutionRequest<CopyTaskDTO> request = new TaskExecutionRequest<>();
+        request.setTaskType(TaskTypeEnum.COPY_TASK);
+        request.setTaskPO(
+                CopyTaskDTO.builder()
+                        .srcPath(BasicUtil.getBranchFullPath(projectInfo.getPath(), branchName, null))
+                        .dstPath(fullPath)
+                        .taskInfoMapper(taskInfoMapper)
+                        .taskInfo(taskInfo)
+                        .callBack(callBack)
+                        .build()
+        );
+        taskExecutionService.createAsyncTask(request);
         return taskInfo.getId();
     }
 
@@ -196,11 +217,22 @@ public class TaskService {
                 this.isSuccess = isSuccess;
             }
         };
-
-        threadPoolExecutor.execute(new CompileTask(
-            branchName, commitId, taskInfo, projectInfo, taskInfoMapper, callBack,
-            mavenHome, mavenSettings, javaHome
-        ));
+        TaskExecutionRequest<CompileTaskDTO> request = new TaskExecutionRequest<>();
+        request.setTaskType(TaskTypeEnum.COMPILE_TASK);
+        request.setTaskPO(
+                CompileTaskDTO.builder()
+                        .branchName(branchName)
+                        .commitId(commitId)
+                        .taskInfo(taskInfo)
+                        .projectInfo(projectInfo)
+                        .taskInfoMapper(taskInfoMapper)
+                        .mavenHome(mavenHome)
+                        .mavenSettings(mavenSettings)
+                        .javaHome(javaHome)
+                        .callBack(callBack)
+                        .build()
+        );
+        taskExecutionService.createAsyncTask(request);
         return callBack;
     }
 
@@ -224,81 +256,93 @@ public class TaskService {
 
             ProjectInfo projectInfo = projectInfoMapper.getProjectInfo(nodeId);
 
-            threadPoolExecutor.execute(new AnalysisTask(
-                nodeId, projectInfo.getPath(), compareInfo, taskInfo, scanService, taskInfoMapper,
-                analysisSimpleReportMapper,
-                new PreRun() {
-                    private Boolean isSuccess;
+            PreRun pre = new PreRun() {
+                private Boolean isSuccess;
 
-                    @Override
-                    public void run() {
-                        ProjectInfo projectInfo = projectInfoMapper.getProjectInfo(nodeId);
-                        Integer base = copyCommitDirectory(nodeId, compareInfo.getBase(), compareInfo.getBaseCommitId(), projectInfo);
-                        Integer compare = copyCommitDirectory(nodeId, compareInfo.getCompare(), compareInfo.getCompareCommitId(), projectInfo);
+                @Override
+                public void run() {
+                    ProjectInfo projectInfo = projectInfoMapper.getProjectInfo(nodeId);
+                    Integer base = copyCommitDirectory(nodeId, compareInfo.getBase(), compareInfo.getBaseCommitId(), projectInfo);
+                    Integer compare = copyCommitDirectory(nodeId, compareInfo.getCompare(), compareInfo.getCompareCommitId(), projectInfo);
 
-                        for (int check = 0x00; check != 0x11; ) {
-                            if (!taskInfoMapper.checkTaskRunning(base)) {
-                                check |= 0x01;
-                            }
-                            if (!taskInfoMapper.checkTaskRunning(compare)) {
-                                check |= 0x10;
-                            }
+                    for (int check = 0x00; check != 0x11; ) {
+                        if (!taskInfoMapper.checkTaskRunning(base)) {
+                            check |= 0x01;
                         }
+                        if (!taskInfoMapper.checkTaskRunning(compare)) {
+                            check |= 0x10;
+                        }
+                    }
 
-                        if (
+                    if (
                             taskInfoMapper.getTaskInfo(base).getStatus().equals(TaskStatus.FAILD.code) ||
-                                taskInfoMapper.getTaskInfo(compare).getStatus().equals(TaskStatus.FAILD.code)
-                        ) {
-                            isSuccess = false;
+                                    taskInfoMapper.getTaskInfo(compare).getStatus().equals(TaskStatus.FAILD.code)
+                    ) {
+                        isSuccess = false;
+                    } else {
+                        // 执行maven compile
+                        CallBack baseCallBack = compileProject(nodeId, compareInfo.getBase(), compareInfo.getBaseCommitId(), projectInfo);
+                        CallBack compareCallBack = compileProject(nodeId, compareInfo.getCompare(), compareInfo.getCompareCommitId(), projectInfo);
+                        while (baseCallBack.isSuccess() == null || compareCallBack.isSuccess() == null) {}
+                        if (baseCallBack.isSuccess() && compareCallBack.isSuccess()) {
+                            isSuccess = true;
                         } else {
-                            // 执行maven compile
-                            CallBack baseCallBack = compileProject(nodeId, compareInfo.getBase(), compareInfo.getBaseCommitId(), projectInfo);
-                            CallBack compareCallBack = compileProject(nodeId, compareInfo.getCompare(), compareInfo.getCompareCommitId(), projectInfo);
-                            while (baseCallBack.isSuccess() == null || compareCallBack.isSuccess() == null) {
-                            }
-                            if (baseCallBack.isSuccess() && compareCallBack.isSuccess()) {
-                                isSuccess = true;
-                            } else {
-                                isSuccess = false;
-                            }
+                            isSuccess = false;
                         }
                     }
-
-                    @Override
-                    public Boolean isSuccess() {
-                        return isSuccess;
-                    }
-                },
-                new CallBack() {
-                    @Override
-                    public void run() {
-                        File base = new File(BasicUtil.getBranchFullPath(projectInfo.getPath(), compareInfo.getBase(), compareInfo.getBaseCommitId()));
-                        File compare = new File(BasicUtil.getBranchFullPath(projectInfo.getPath(), compareInfo.getCompare(), compareInfo.getCompareCommitId()));
-
-                        if (base.exists()){
-                            try{
-                                FileUtils.deleteDirectory(base);
-                            }catch (IOException e){
-                                throw new RuntimeException(e);
-                            }
-                        }
-                        if (compare.exists()){
-                            try{
-                                FileUtils.deleteDirectory(compare);
-                            }catch (IOException e){
-                                throw new RuntimeException(e);
-                            }
-                        }
-                    }
-                    @Override
-                    public Boolean isSuccess() {
-                        return null;
-                    }
-                    @Override
-                    public void setResult(Boolean isSuccess) {}
                 }
-            ));
 
+                @Override
+                public Boolean isSuccess() {
+                    return isSuccess;
+                }
+            };
+            CallBack callBack = new CallBack() {
+                @Override
+                public void run() {
+                    File base = new File(BasicUtil.getBranchFullPath(projectInfo.getPath(), compareInfo.getBase(), compareInfo.getBaseCommitId()));
+                    File compare = new File(BasicUtil.getBranchFullPath(projectInfo.getPath(), compareInfo.getCompare(), compareInfo.getCompareCommitId()));
+
+                    if (base.exists()){
+                        try{
+                            FileUtils.deleteDirectory(base);
+                        }catch (IOException e){
+                            throw new RuntimeException(e);
+                        }
+                    }
+                    if (compare.exists()){
+                        try{
+                            FileUtils.deleteDirectory(compare);
+                        }catch (IOException e){
+                            throw new RuntimeException(e);
+                        }
+                    }
+                }
+                @Override
+                public Boolean isSuccess() {
+                    return null;
+                }
+                @Override
+                public void setResult(Boolean isSuccess) {}
+            };
+
+
+            TaskExecutionRequest<AnalysisTaskDTO> request = new TaskExecutionRequest<>();
+            request.setTaskType(TaskTypeEnum.ANALYSIS_TASK);
+            request.setTaskPO(
+                    AnalysisTaskDTO.builder()
+                            .nodeId(nodeId)
+                            .rootPath(projectInfo.getPath())
+                            .compareInfo(compareInfo)
+                            .scanService(scanService)
+                            .taskInfo(taskInfo)
+                            .taskInfoMapper(taskInfoMapper)
+                            .analysisSimpleReportMapper(analysisSimpleReportMapper)
+                            .preRun(pre)
+                            .callBack(callBack)
+                            .build()
+            );
+            taskExecutionService.createAsyncTask(request);
             return taskInfo.getId();
         }finally {
             if (callAnalysisLock.isHeldByCurrentThread())

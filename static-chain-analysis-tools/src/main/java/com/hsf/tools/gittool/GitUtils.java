@@ -1,7 +1,8 @@
 package com.hsf.tools.gittool;
 
-import com.hsf.tools.Config.SshSession;
-import com.hsf.tools.Utils.BasicUtil;
+import com.jcraft.jsch.JSch;
+import com.jcraft.jsch.JSchException;
+import com.jcraft.jsch.Session;
 import org.eclipse.jgit.api.CloneCommand;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.ListBranchCommand;
@@ -10,6 +11,9 @@ import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.transport.*;
+import org.eclipse.jgit.transport.ssh.jsch.JschConfigSessionFactory;
+import org.eclipse.jgit.transport.ssh.jsch.OpenSshConfig;
+import org.eclipse.jgit.util.FS;
 
 import java.io.File;
 import java.io.IOException;
@@ -17,31 +21,32 @@ import java.util.*;
 
 public class GitUtils {
 
-    public static void main(String[] args) {
-        File test = new File("/Users/xiaoandi/github/static-chain-analysis-web/tmp/sl-ec-shoplytics/diff/test/new");
-        UsernamePasswordCredentialsProvider credentialsProvider = new UsernamePasswordCredentialsProvider("dw_fujuhong", "fGbgrW8Ea43hhM6yMjmC");
-        checkoutBranch(test, "test", credentialsProvider);
-    }
-    @Deprecated
-    public static Git clone(String gitUrl, String privateKey, byte[] passphrase){
-        // 有你妈大问题，垃圾jgit
-        CloneCommand cloneCommand = Git.cloneRepository()
-            .setURI(gitUrl)
-            .setDirectory(new File(System.getProperty("user.dir") + "/" + BasicUtil.getGitName(gitUrl)));
+    public static void clone(
+            String gitUrl, String dstDir, String username, String publicKey, String privateKey, String passphrase
+    ) throws GitAPIException {
+        SshSessionFactory sshSessionFactory = new JschConfigSessionFactory(){
+            @Override
+            protected void configure(OpenSshConfig.Host host, Session session){
+                session.setConfig("StrictHostKeyChecking", "no");
+            }
 
-        SshSessionFactory sshSessionFactory = new SshSession("xiaoandi", null , privateKey.getBytes(), passphrase);
-        cloneCommand.setTransportConfigCallback(transport -> {
-            SshTransport sshTransport = (SshTransport) transport;
-            sshTransport.setSshSessionFactory(sshSessionFactory);
-        });
+            @Override
+            protected JSch createDefaultJSch(FS fs) throws JSchException {
+                JSch jSch = super.createDefaultJSch(fs);
+                // 指定私钥文件路径（支持无密码或有密码的密钥）
+                jSch.addIdentity(username, privateKey.getBytes(), publicKey.getBytes(), passphrase.getBytes());
+                return jSch;
+            }
+        };
 
-        Git git = null;
-        try{
-            git = cloneCommand.call();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-        return git;
+        Git.cloneRepository()
+                .setURI(gitUrl)
+                .setDirectory(new File(dstDir))
+                .setTransportConfigCallback(transport -> {
+                    SshTransport sshTransport = (SshTransport) transport;
+                    sshTransport.setSshSessionFactory(sshSessionFactory);
+                })
+                .call();
     }
 
     public static void clone(String gitUrl, String dstDir, UsernamePasswordCredentialsProvider usernamePasswordCredentialsProvider) throws GitAPIException {
@@ -50,7 +55,6 @@ public class GitUtils {
             .setRemote("origin")
             .setDirectory(new File(dstDir));
         cloneCommand.setCredentialsProvider(usernamePasswordCredentialsProvider);
-//        cloneCommand.setCloneAllBranches(true); // clone 所有分支
 
         cloneCommand.call();
     }
@@ -59,6 +63,33 @@ public class GitUtils {
         Git git = Git.open(dir);
         git.pull()
             .setCredentialsProvider(credentialsProvider)
+            .call();
+    }
+
+    public static void pullWithSshKey(
+            File dir, String username, String publicKey, String privateKey, String passphrase
+    ) throws IOException, GitAPIException {
+        SshSessionFactory sshSessionFactory = new JschConfigSessionFactory(){
+            @Override
+            protected void configure(OpenSshConfig.Host host, Session session){
+                session.setConfig("StrictHostKeyChecking", "no");
+            }
+
+            @Override
+            protected JSch createDefaultJSch(FS fs) throws JSchException {
+                JSch jSch = super.createDefaultJSch(fs);
+                // 指定私钥文件路径（支持无密码或有密码的密钥）
+                jSch.addIdentity(username, privateKey.getBytes(), publicKey.getBytes(), passphrase.getBytes());
+                return jSch;
+            }
+        };
+
+        Git project = Git.open(dir);
+        project.pull()
+            .setTransportConfigCallback(transport -> {
+                SshTransport sshTransport = (SshTransport) transport;
+                sshTransport.setSshSessionFactory(sshSessionFactory);
+            })
             .call();
     }
 

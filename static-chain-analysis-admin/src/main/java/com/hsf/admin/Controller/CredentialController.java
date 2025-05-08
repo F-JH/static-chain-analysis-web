@@ -1,10 +1,9 @@
 package com.hsf.admin.Controller;
 
-import com.hsf.admin.Code.ResultTemplate;
+import com.hsf.admin.Code.Response;
 import com.hsf.admin.Pojo.Entities.CredentialInfo;
 import com.hsf.admin.Pojo.Requests.CredentialInfoRequest;
 import com.hsf.admin.Service.CredentialInfoService;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,12 +17,12 @@ public class CredentialController {
     CredentialInfoService credentialInfoService;
 
     @GetMapping("list")
-    public ResultTemplate<List<CredentialInfo>> getCredentialList(String key){
-        return new ResultTemplate<>(credentialInfoService.getCredentialInfoList(key));
+    public Response<List<CredentialInfo>> getCredentialList(String key){
+        return new Response<>(credentialInfoService.getCredentialInfoList(key));
     }
 
     @PostMapping("addCredentialInfo")
-    public ResultTemplate<Integer> addCredential(@RequestBody CredentialInfoRequest credentialInfoRequest){
+    public Response<Integer> addCredential(@RequestBody CredentialInfoRequest credentialInfoRequest){
         CredentialInfo credentialInfo = new CredentialInfo();
         credentialInfo.setName(credentialInfoRequest.getName());
         credentialInfo.setUsername(credentialInfoRequest.getUsername());
@@ -32,14 +31,14 @@ public class CredentialController {
         credentialInfo.setPublicKey(credentialInfoRequest.getPublicKey());
         credentialInfo.setPrivateKey(credentialInfoRequest.getPrivateKey());
 
-        return new ResultTemplate<>(credentialInfoService.addCredentialInfo(credentialInfo));
+        return new Response<>(credentialInfoService.addCredentialInfo(credentialInfo));
 //        return ResultTemplate.failed();
     }
 
     @PostMapping("editCredentialInfo")
-    public ResultTemplate<Integer> editCredential(@RequestBody CredentialInfoRequest credentialInfoRequest){
+    public Response<Integer> editCredential(@RequestBody CredentialInfoRequest credentialInfoRequest){
         if (credentialInfoRequest.getId().equals(null)){
-            return ResultTemplate.failed();
+            return Response.failed();
         }
         CredentialInfo credentialInfo = new CredentialInfo();
         credentialInfo.setId(credentialInfoRequest.getId());
@@ -50,16 +49,16 @@ public class CredentialController {
         credentialInfo.setPublicKey(credentialInfoRequest.getPublicKey());
         credentialInfo.setPrivateKey(credentialInfoRequest.getPrivateKey());
 
-        return new ResultTemplate<>(credentialInfoService.editCredentialInfo(credentialInfo));
+        return new Response<>(credentialInfoService.editCredentialInfo(credentialInfo));
     }
 
     @DeleteMapping("deleteCredentialInfo")
-    public ResultTemplate<Integer> deleteCredential(@RequestParam Integer id){
-        return new ResultTemplate<>(credentialInfoService.deleteCredentialInfo(id));
+    public Response<Integer> deleteCredential(@RequestParam Integer id){
+        return new Response<>(credentialInfoService.deleteCredentialInfo(id));
     }
 
     @PostMapping("credentialName")
-    public ResultTemplate<String> getCredentialName(@RequestParam Integer credentialId){
-        return new ResultTemplate<>(credentialInfoService.getCredentialName(credentialId).getName());
+    public Response<String> getCredentialName(@RequestParam Integer credentialId){
+        return new Response<>(credentialInfoService.getCredentialName(credentialId).getName());
     }
 }

@@ -290,7 +290,17 @@ export default defineComponent({
         },
         reName(data:any){this.notRealized()},
         moveFloder(data:any){this.notRealized()},
-        deleteItem(data:any){this.notRealized()},
+        deleteItem(data:any){
+            // 删除文件夹
+            this.service.post(BranchUrl.deleteNode + '?nodeId=' + data.id).then((res:any) => {
+                ElMessage({
+                    message: '删除成功',
+                    type: 'success'
+                })
+                this.getTree()
+            })
+          this.notRealized();
+        },
         editItem(data:any){this.notRealized()},
         removeTabItem(nodeId:number | string){
             console.log(nodeId)

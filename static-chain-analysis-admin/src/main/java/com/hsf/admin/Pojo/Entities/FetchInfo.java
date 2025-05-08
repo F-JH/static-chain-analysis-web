@@ -13,7 +13,7 @@ public class FetchInfo {
     private String credentialName;
     private String credentialUsername;
     private String credentialPassword;
-    private String publiKey;
+    private String publicKey;
     private String privateKey;
     private String passphrase;
 }

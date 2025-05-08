@@ -9,7 +9,7 @@ import java.util.concurrent.TimeUnit;
 
 @Configuration
 public class ThreadConfiger {
-    @Bean
+    @Bean(name = "taskThreadPool")
     public ThreadPoolExecutor setThreadPoolExecutor(){
         return new ThreadPoolExecutor(
             50,

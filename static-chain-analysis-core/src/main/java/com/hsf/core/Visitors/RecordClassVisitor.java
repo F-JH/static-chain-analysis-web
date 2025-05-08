@@ -1,5 +1,6 @@
 package com.hsf.core.Visitors;
 
+import com.hsf.core.Enums.JdkVersionEnum;
 import com.hsf.core.Recorders.AbstractRecord;
 import com.hsf.core.Recorders.DubboRecord;
 import com.hsf.core.Recorders.InterfaceRecord;
@@ -15,6 +16,7 @@ import static org.objectweb.asm.Opcodes.*;
 import static org.objectweb.asm.Opcodes.ACC_ABSTRACT;
 
 public class RecordClassVisitor extends ClassVisitor {
+    private final JdkVersionEnum jdkVersionEnum;
     private final InterfaceRecord interfaceRecord;
     private final AbstractRecord abstractRecord;
     private final DubboRecord dubboRecord;
@@ -25,10 +27,11 @@ public class RecordClassVisitor extends ClassVisitor {
     private boolean isDubbo = false;
 
     public RecordClassVisitor(
-        ClassVisitor cv, InterfaceRecord interfaceRecord, AbstractRecord abstractRecord, DubboRecord dubboRecord,
-        ProjectRecord projectRecord
+            JdkVersionEnum jdkVersion, ClassVisitor cv, InterfaceRecord interfaceRecord, AbstractRecord abstractRecord,
+            DubboRecord dubboRecord, ProjectRecord projectRecord
     ) {
-        super(ASM7, cv);
+        super(jdkVersion.getCode(), cv);
+        this.jdkVersionEnum = jdkVersion;
         this.interfaceRecord = interfaceRecord;
         this.abstractRecord = abstractRecord;
         this.dubboRecord = dubboRecord;
@@ -76,7 +79,7 @@ public class RecordClassVisitor extends ClassVisitor {
         if(isDubbo){
             dubboRecord.putDubboMethod(className + METHOD_SPLIT + methodName);
         }
-        return new RecordMethodVisitor(
+        return new RecordMethodVisitor(jdkVersionEnum,
             super.visitMethod(access, name, descriptor, signature, exceptions),
             access, name, descriptor
         );

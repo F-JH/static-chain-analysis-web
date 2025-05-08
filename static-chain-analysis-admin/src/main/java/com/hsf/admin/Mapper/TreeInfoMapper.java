@@ -15,4 +15,5 @@ public interface TreeInfoMapper {
 
     public Integer addNode(@Param("node")GitInfoRequest gitInfoRequest, @Param("result")TreeInfo treeInfo);
     public Integer addNodeV2(@Param("node")GitInfoRequest gitInfoRequest, @Param("result")TreeInfo treeInfo);
+    public Integer deleteNode(@Param("nodeId") Integer nodeId);
 }

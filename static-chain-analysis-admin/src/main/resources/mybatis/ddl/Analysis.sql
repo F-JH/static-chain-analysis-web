@@ -31,7 +31,8 @@ insert into file_tree_info (parent_id, name, lft, rgt, is_directory) values (0, 
 create table if not exists project_git_info (
     id int(8) unsigned not null primary key auto_increment,
     node_id int(8) comment '对应的node id',
-    path varchar(256) comment '本地存储路径',
+    `path` varchar(256) comment '本地存储路径',
+    `jdk_version` varchar(10) comment 'jdk版本',
     `create_time` datetime(3) not null default current_timestamp(3),
     `update_time` datetime(3) not null default current_timestamp(3) on update current_timestamp(3),
     `last_sync_time` datetime(3)
@@ -41,7 +42,7 @@ create table if not exists task_info (
     id int(12) unsigned not null primary key auto_increment,
     type varchar(20) comment '任务类型：clone/pull/diff/copy',
     node_id int(8) comment '关联的 node id',
-    detail_info varchar(200) comment '任务详情，json格式',
+    detail_info text comment '任务详情，json格式',
     `create_time` datetime(3) not null default current_timestamp(3),
     `update_time` datetime(3) not null default current_timestamp(3) on update current_timestamp(3),
     status int(1) not null default 0 comment '0 初始化， 1 运行中， 2 执行成功， 3 执行失败， 4 重试中'

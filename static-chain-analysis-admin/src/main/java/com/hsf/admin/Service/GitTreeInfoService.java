@@ -78,4 +78,17 @@ public class GitTreeInfoService {
 
         return result;
     }
+
+    @Transactional
+    public Integer deleteNode(Integer nodeId){
+        readWriteLock.writeLock().lock();
+        Integer result = treeInfoMapper.deleteNode(nodeId);
+        if (result == 0){
+            readWriteLock.writeLock().unlock();
+            return -1;
+        }
+        projectInfoMapper.deleteProjectInfo(nodeId);
+        readWriteLock.writeLock().unlock();
+        return result;
+    }
 }

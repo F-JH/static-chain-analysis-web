@@ -1,5 +1,6 @@
 package com.hsf.core.Services;
 
+import com.hsf.core.Enums.JdkVersionEnum;
 import com.hsf.core.Recorders.*;
 import com.hsf.core.Utils.ChainUtils;
 import com.hsf.tools.Utils.BasicUtil;
@@ -27,7 +28,7 @@ import static com.hsf.tools.Config.Code.*;
 *   项目内的各种类型，如interface/dubbo/abstract/controller等
 * */
 public class ScanService {
-    public List<Recorder> recordProjectClass(List<String> modules) throws IOException {
+    public List<Recorder> recordProjectClass(JdkVersionEnum jdkVersionEnum, List<String> modules) throws IOException {
         InterfaceRecord interfaceRecord = new InterfaceRecord();
         AbstractRecord abstractRecord = new AbstractRecord();
         DubboRecord dubboRecord = new DubboRecord();
@@ -38,6 +39,7 @@ public class ScanService {
             List<String> filePaths = FileUtil.scanForDirectory(rootDir);
             for (String filePath : filePaths){
                 ChainUtils.scanForClassName(
+                        jdkVersionEnum,
                     FileUtils.readFileToByteArray(new File(filePath)),
                     interfaceRecord, abstractRecord, dubboRecord, projectRecord
                 );
@@ -142,6 +144,7 @@ public class ScanService {
     * 根据模块列表，扫描所有调用关系
     * */
     public Map<String, Map<String, List<String>>> getRelationShips(
+            JdkVersionEnum jdkVersionEnum,
         List<String> modules, List<Recorder> recorderList
     ) throws IOException {
         if (recorderList.size() != 6){
@@ -180,6 +183,7 @@ public class ScanService {
                 relationShips.put(
                     className,
                     ChainUtils.getRelationShipFromClassBuffer(
+                            jdkVersionEnum,
                         FileUtils.readFileToByteArray(new File(filePath)),
                         interfaceRecord, abstractRecord, dubboRecord, projectRecord, controllerRecord, apiRecord
                     )

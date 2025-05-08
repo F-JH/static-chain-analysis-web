@@ -1,6 +1,6 @@
 package com.hsf.admin.Controller;
 
-import com.hsf.admin.Code.ResultTemplate;
+import com.hsf.admin.Code.Response;
 import com.hsf.admin.Pojo.Entities.AnalysisSimpleReport;
 import com.hsf.admin.Pojo.Entities.TaskInfo;
 import com.hsf.admin.Service.ReportService;
@@ -24,17 +24,17 @@ public class ReportController {
     private ReportService reportService;
 
     @RequestMapping("task")
-    public ResultTemplate<TaskInfo> getTaskStatus(@RequestParam Integer taskId){
-        return new ResultTemplate<>(taskService.getTaskInfo(taskId));
+    public Response<TaskInfo> getTaskStatus(@RequestParam Integer taskId){
+        return new Response<>(taskService.getTaskInfo(taskId));
     }
 
     @PostMapping("taskResultDetail")
-    public ResultTemplate<List<AnalysisSimpleReport>> getReports(@RequestParam Integer taskId){
-        return new ResultTemplate<>(reportService.getReports(taskId));
+    public Response<List<AnalysisSimpleReport>> getReports(@RequestParam Integer taskId){
+        return new Response<>(reportService.getReports(taskId));
     }
 
     @PostMapping("list")
-    public ResultTemplate<List<TaskInfo>> getDiffTaskInfos(@RequestParam Integer nodeId){
-        return new ResultTemplate<>(taskService.getDiffTasks(nodeId));
+    public Response<List<TaskInfo>> getDiffTaskInfos(@RequestParam Integer nodeId){
+        return new Response<>(taskService.getDiffTasks(nodeId));
     }
 }

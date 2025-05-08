@@ -42,4 +42,8 @@
         where
             t1.node_id = #{nodeId};
     </select>
+
+    <delete id="deleteProjectInfo" parameterType="java.lang.Integer">
+        delete from project_git_info where node_id = #{nodeId}
+    </delete>
 </mapper>

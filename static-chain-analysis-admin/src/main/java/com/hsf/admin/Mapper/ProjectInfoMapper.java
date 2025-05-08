@@ -13,4 +13,6 @@ public interface ProjectInfoMapper {
     public Integer updateProjectInfo(@Param("info") ProjectInfo info);
 
     public Boolean checkBranchDirSyncTime(@Param("nodeId") Integer nodeId, @Param("branchName") String branchName);
+
+    public Integer deleteProjectInfo(@Param("nodeId") Integer nodeId);
 }

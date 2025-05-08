@@ -1,6 +1,7 @@
 package com.hsf.core.Utils;
 
 import com.alibaba.fastjson.JSONObject;
+import com.hsf.core.Enums.JdkVersionEnum;
 import com.hsf.core.Recorders.*;
 import com.hsf.core.Visitors.RecordClassVisitor;
 import com.hsf.core.Visitors.RelationClassVisitor;
@@ -27,23 +28,23 @@ public class ChainUtils {
     /*
     * 利用visitor检索classBuffer，将interface、dubbo、abstract等类型记录下来
     * */
-    public static void scanForClassName(
+    public static void scanForClassName(JdkVersionEnum jdkVersionEnum,
         byte[] classfileBuffer, InterfaceRecord interfaceRecord, AbstractRecord abstractRecord, DubboRecord dubboRecord,
         ProjectRecord projectRecord
     ){
         ClassReader cr = new ClassReader(classfileBuffer);
         ClassWriter cw = new ClassWriter(cr, ClassWriter.COMPUTE_FRAMES | ClassWriter.COMPUTE_MAXS);
-        ClassVisitor cv = new RecordClassVisitor(cw, interfaceRecord, abstractRecord, dubboRecord, projectRecord);
+        ClassVisitor cv = new RecordClassVisitor(jdkVersionEnum, cw, interfaceRecord, abstractRecord, dubboRecord, projectRecord);
         cr.accept(cv, ClassReader.SKIP_FRAMES);
     }
 
-    public static Map<String, List<String>> getRelationShipFromClassBuffer(
+    public static Map<String, List<String>> getRelationShipFromClassBuffer(JdkVersionEnum jdkVersionEnum,
         byte[] classfileBuffer, InterfaceRecord interfaceRecord, AbstractRecord abstractRecord, DubboRecord dubboRecord,
         ProjectRecord projectRecord, ControllerRecord controllerRecord, ApiRecord apiRecord
     ){
         ClassReader cr = new ClassReader(classfileBuffer);
         ClassWriter cw = new ClassWriter(cr, ClassWriter.COMPUTE_FRAMES | ClassWriter.COMPUTE_MAXS);
-        RelationClassVisitor cv = new RelationClassVisitor(
+        RelationClassVisitor cv = new RelationClassVisitor(jdkVersionEnum,
             cw, interfaceRecord, abstractRecord, projectRecord, controllerRecord, apiRecord
         );
         cr.accept(cv, ClassReader.SKIP_FRAMES);

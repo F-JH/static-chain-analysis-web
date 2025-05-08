@@ -162,9 +162,9 @@ export default defineComponent({
             <el-table-column label="名称" prop="name" />
             <el-table-column label="用户名" prop="username" />
             <el-table-column label="密码" prop="password" />
-            <el-table-column label="公钥" prop="publicKey" />
-            <el-table-column label="私钥" prop="privateKey" />
-            <el-table-column label="passphrase" prop="passphrase" />
+            <el-table-column label="公钥" prop="publicKey" show-overflow-tooltip />
+            <el-table-column label="私钥" prop="privateKey" show-overflow-tooltip />
+            <el-table-column label="passphrase" prop="passphrase" show-overflow-tooltip />
             <el-table-column label="操作">
                 <template #default="scope">
                     <el-button type="primary" @click="editItem(scope.row)">编辑</el-button>
@@ -252,5 +252,11 @@ export default defineComponent({
     width: 100%;
     margin-right: 0;
     display: flex;
+}
+.el-table-column {
+  max-width: 200px; /* 根据需要调整宽度 */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 </style>

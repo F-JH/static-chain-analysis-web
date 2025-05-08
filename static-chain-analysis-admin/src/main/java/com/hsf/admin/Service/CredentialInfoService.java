@@ -18,7 +18,16 @@ public class CredentialInfoService {
     public List<CredentialInfo> getCredentialInfoList(String key){
         if (StringUtils.isNotBlank(key))
             return credentialInfoMapper.searchCredentialInfoList(key);
-        return credentialInfoMapper.getCredentialInfoList();
+        List<CredentialInfo> credentialInfoList = credentialInfoMapper.getCredentialInfoList();
+        for (CredentialInfo credentialInfo : credentialInfoList) {
+            if (credentialInfo.getPassword() != null && !credentialInfo.getPassword().isEmpty()) {
+                credentialInfo.setPassword(credentialInfo.getPassword().replaceAll(".", "*"));
+            }
+            if (credentialInfo.getPassphrase() != null && !credentialInfo.getPassphrase().isEmpty()) {
+                credentialInfo.setPassphrase(credentialInfo.getPassphrase().replaceAll(".", "*"));
+            }
+        }
+        return credentialInfoList;
     }
 
     public CredentialInfo getCredentialName(Integer id){

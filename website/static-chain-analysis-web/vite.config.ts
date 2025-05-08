@@ -28,15 +28,15 @@ export default defineConfig({
       open: true,
       port: 5173,
       proxy: {
+          '^/api': {
+              target: 'http://localhost:8089/',
+              changeOrigin: true,
+              rewrite: (path) => path.replace(/\/api/, '')
+          },
           '^/echarts': {
               target: 'https://echarts.apache.org/',
               changeOrigin: true,
               rewrite: (path) => path.replace(/^\/echarts/, '')
-          },
-          '^/api': {
-              target: 'http://localhost:8089/',
-              changeOrigin: true,
-              rewrite: (path) => path.replace(/^\/api/, '')
           }
       }
     }

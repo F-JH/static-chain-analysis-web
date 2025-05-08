@@ -1,59 +1,66 @@
 package com.hsf.admin.TaskCore;
 
+import com.hsf.admin.Code.Response;
 import com.hsf.admin.Code.TaskStatus;
-import com.hsf.admin.Mapper.ProjectInfoMapper;
-import com.hsf.admin.Mapper.TaskInfoMapper;
-import com.hsf.admin.Pojo.Entities.ProjectInfo;
-import com.hsf.admin.Pojo.Entities.TaskInfo;
+import com.hsf.admin.Dto.Task.PullTaskDTO;
+import com.hsf.admin.Enums.TaskTypeEnum;
+import com.hsf.admin.Pojo.Requests.TaskExecutionRequest;
+import com.hsf.admin.Pojo.Responses.TaskExecutionResponse;
+import com.hsf.admin.TaskCore.Base.BaseTaskExecutor;
 import com.hsf.tools.gittool.GitUtils;
+import com.mysql.cj.util.StringUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
+import org.springframework.stereotype.Component;
 
 import java.io.File;
 import java.io.IOException;
-import java.sql.SQLException;
 import java.util.Date;
 
 @Slf4j
-public class PullTask implements Runnable{
+@Component
+public class PullTask extends BaseTaskExecutor {
 
-    private final String username;
-    private final String password;
-    private final String projectDir;
-    private final TaskInfo taskInfo;
-    private final TaskInfoMapper taskInfoMapper;
-    private final ProjectInfo projectInfo;
-    private final ProjectInfoMapper projectInfoMapper;
-
-    public PullTask(
-        String username, String password, String projectDir, TaskInfo taskInfo, TaskInfoMapper taskInfoMapper,
-        ProjectInfo projectInfo, ProjectInfoMapper projectInfoMapper
-    ){
-        this.username = username;
-        this.password = password;
-        this.projectDir = projectDir;
-        this.taskInfo = taskInfo;
-        this.taskInfoMapper = taskInfoMapper;
-        this.projectInfo = projectInfo;
-        this.projectInfoMapper = projectInfoMapper;
+    public PullTask() {
+        super(TaskTypeEnum.PULL_TASK);
     }
+
     @Override
-    public void run() {
-        UsernamePasswordCredentialsProvider credentialsProvider = new UsernamePasswordCredentialsProvider(username, password);
-        File dir = new File(projectDir);
-        taskInfo.setStatus(TaskStatus.RUNNING.code);
-        taskInfoMapper.updateTaskInfo(taskInfo);
-        log.info("[" + taskInfo.getId() + "]" + "git pull " + projectDir);
-        try {
-            GitUtils.pull(dir, credentialsProvider);
-            taskInfo.setStatus(TaskStatus.SUCCESS.code);
-            projectInfo.setLastSyncTime(new Date());
-            projectInfoMapper.updateProjectInfo(projectInfo);
-            taskInfoMapper.updateTaskInfo(taskInfo);
-        }catch (GitAPIException | IOException e){
-            taskInfo.setStatus(TaskStatus.FAILD.code);
-            taskInfoMapper.updateTaskInfo(taskInfo);
+    public Response<TaskExecutionResponse> execute(TaskExecutionRequest<?> request) {
+        PullTaskDTO pullTaskDTO = (PullTaskDTO) request.getTaskPO();
+        TaskExecutionResponse response = new TaskExecutionResponse();
+
+        File dir = new File(pullTaskDTO.getProjectDir());
+        pullTaskDTO.getTaskInfo().setStatus(TaskStatus.RUNNING.code);
+        pullTaskDTO.getTaskInfoMapper().updateTaskInfo(pullTaskDTO.getTaskInfo());
+        log.info("[" + pullTaskDTO.getTaskInfo().getId() + "]" + "git pull " + pullTaskDTO.getProjectDir());
+
+        try{
+            if (!StringUtils.isNullOrEmpty(pullTaskDTO.getPublicKey())
+                            && !StringUtils.isNullOrEmpty(pullTaskDTO.getPrivateKey())){
+                // ssh
+                GitUtils.pullWithSshKey(dir, pullTaskDTO.getUsername(),
+                        pullTaskDTO.getPublicKey(), pullTaskDTO.getPrivateKey(), pullTaskDTO.getPassphrase()
+                );
+            } else if (!StringUtils.isNullOrEmpty(pullTaskDTO.getPassword())) {
+                // user-password
+                UsernamePasswordCredentialsProvider credentialsProvider = new UsernamePasswordCredentialsProvider(
+                        pullTaskDTO.getUsername(), pullTaskDTO.getPassword()
+                );
+                GitUtils.pull(dir, credentialsProvider);
+            } else {
+                throw new IllegalArgumentException("No credentials provided for git pull");
+            }
+            pullTaskDTO.getTaskInfo().setStatus(TaskStatus.SUCCESS.code);
+            pullTaskDTO.getProjectInfo().setLastSyncTime(new Date());
+            pullTaskDTO.getProjectInfoMapper().updateProjectInfo(pullTaskDTO.getProjectInfo());
+            pullTaskDTO.getTaskInfoMapper().updateTaskInfo(pullTaskDTO.getTaskInfo());
+        }catch (GitAPIException | IOException | IllegalArgumentException e){
+            log.error("[" + pullTaskDTO.getTaskInfo().getId() + "]" + "git pull " + pullTaskDTO.getProjectDir() + " error: " + e.getMessage());
+            pullTaskDTO.getTaskInfo().setStatus(TaskStatus.FAILD.code);
+            pullTaskDTO.getTaskInfoMapper().updateTaskInfo(pullTaskDTO.getTaskInfo());
         }
+        return Response.success(response);
     }
 }

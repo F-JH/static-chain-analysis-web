@@ -9,7 +9,7 @@
         <result column="credential_name" property="credentialName" jdbcType="VARCHAR" />
         <result column="credential_username" property="credentialUsername" jdbcType="VARCHAR" />
         <result column="credential_password" property="credentialPassword" jdbcType="VARCHAR" />
-        <result column="publi_key" property="publiKey" jdbcType="VARCHAR" />
+        <result column="public_key" property="publicKey" jdbcType="VARCHAR" />
         <result column="private_key" property="privateKey" jdbcType="VARCHAR" />
         <result column="passphrase" property="passphrase" jdbcType="VARCHAR" />
     </resultMap>

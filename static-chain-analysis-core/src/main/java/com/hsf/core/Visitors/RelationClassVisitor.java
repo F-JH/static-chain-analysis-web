@@ -1,5 +1,6 @@
 package com.hsf.core.Visitors;
 
+import com.hsf.core.Enums.JdkVersionEnum;
 import com.hsf.core.Recorders.*;
 import com.hsf.tools.Utils.BasicUtil;
 import com.hsf.tools.Utils.FilterUtils;
@@ -27,17 +28,19 @@ public class RelationClassVisitor extends ClassVisitor {
     private Set<String> requestMappingValue;
     // 记录全部子方法的api入口
     private final Map<String, Set<String>> recordMapping = new HashMap<>();
+    private final JdkVersionEnum jdkVersionEnum;
 
     public RelationClassVisitor(
-        ClassVisitor classVisitor, InterfaceRecord interfaceRecord, AbstractRecord abstractRecord,
-        ProjectRecord projectRecord, ControllerRecord controllerRecord, ApiRecord apiRecord
+            JdkVersionEnum jdkVersionEnum, ClassVisitor classVisitor, InterfaceRecord interfaceRecord, AbstractRecord abstractRecord,
+            ProjectRecord projectRecord, ControllerRecord controllerRecord, ApiRecord apiRecord
     ) {
-        super(ASM7, classVisitor);
+        super(jdkVersionEnum.getCode(), classVisitor);
         this. interfaceRecord = interfaceRecord;
         this.abstractRecord = abstractRecord;
         this.projectRecord = projectRecord;
         this.controllerRecord = controllerRecord;
         this.apiRecord = apiRecord;
+        this.jdkVersionEnum = jdkVersionEnum;
     }
 
     @Override
@@ -67,12 +70,14 @@ public class RelationClassVisitor extends ClassVisitor {
         methodRelations.put(signatureName, methodRelation);
         if(hasRequestMapping){
             return new RelationMethodVisitor(
+                    jdkVersionEnum,
                 access, name, descriptor, super.visitMethod(access,name,descriptor,signature,exceptions), projectRecord,
                 apiRecord, controllerRecord, methodRelation, className, requestMappingValue, recordMapping
             );
         }else{
             // 类没有 RequestMapping 则parentPath为空的Set
             return new RelationMethodVisitor(
+                    jdkVersionEnum,
                 access, name, descriptor, super.visitMethod(access,name,descriptor,signature,exceptions), projectRecord,
                 apiRecord, controllerRecord, methodRelation, className, new HashSet<>(), recordMapping
             );
@@ -91,7 +96,7 @@ public class RelationClassVisitor extends ClassVisitor {
             requestMappingValue = new HashSet<>();
             Set<String> parentPath = new HashSet<>();
             // 这里去获取类的 requestMappingValue
-            return new RelationAnnotationVisitor(super.visitAnnotation(descriptor, visiable), requestMappingValue, parentPath);
+            return new RelationAnnotationVisitor(jdkVersionEnum, super.visitAnnotation(descriptor, visiable), requestMappingValue, parentPath);
         }
         return super.visitAnnotation(descriptor, visiable);
     }
