@@ -4,6 +4,7 @@ import com.hsf.core.Enums.JdkVersionEnum;
 import com.hsf.core.Recorders.*;
 import com.hsf.tools.Utils.BasicUtil;
 import com.hsf.tools.Utils.FilterUtils;
+import lombok.Getter;
 import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.MethodVisitor;
@@ -15,6 +16,7 @@ import static org.objectweb.asm.Opcodes.ASM7;
 public class RelationClassVisitor extends ClassVisitor {
 
     private String className;
+    @Getter
     private final Map<String, List<String>> methodRelations = new HashMap<>();
     private final InterfaceRecord interfaceRecord;
     private final AbstractRecord abstractRecord;
@@ -27,6 +29,7 @@ public class RelationClassVisitor extends ClassVisitor {
     // 记录自己的 requestMapping::Value
     private Set<String> requestMappingValue;
     // 记录全部子方法的api入口
+    @Getter
     private final Map<String, Set<String>> recordMapping = new HashMap<>();
     private final JdkVersionEnum jdkVersionEnum;
 
@@ -106,11 +109,4 @@ public class RelationClassVisitor extends ClassVisitor {
         super.visitEnd();
     }
 
-    public Map<String, List<String>> getMethodRelations() {
-        return methodRelations;
-    }
-
-    public Map<String, Set<String>> getRecordMapping() {
-        return recordMapping;
-    }
 }

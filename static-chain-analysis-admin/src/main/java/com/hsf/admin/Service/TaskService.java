@@ -14,28 +14,21 @@ import com.hsf.admin.Pojo.Entities.ProjectInfo;
 import com.hsf.admin.Pojo.Entities.TaskInfo;
 import com.hsf.admin.Pojo.Requests.CompareInfo;
 import com.hsf.admin.Pojo.Requests.TaskExecutionRequest;
-import com.hsf.admin.TaskCore.*;
 import com.hsf.admin.TaskCore.Interface.CallBack;
 import com.hsf.admin.TaskCore.Interface.PreRun;
 import com.hsf.core.Services.ScanService;
 import com.hsf.tools.Utils.BasicUtil;
 import com.hsf.tools.gittool.GitUtils;
 import org.apache.commons.io.FileUtils;
-import org.apache.ibatis.session.ExecutorType;
-import org.apache.ibatis.session.SqlSessionFactory;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Bean;
-import org.springframework.scheduling.config.Task;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
-import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
@@ -64,8 +57,6 @@ public class TaskService {
     AnalysisSimpleReportMapper analysisSimpleReportMapper;
     @Autowired
     ScanService scanService;
-    @Autowired
-    ThreadPoolExecutor threadPoolExecutor;
 
     @Resource
     TaskExecutionService taskExecutionService;
@@ -334,10 +325,7 @@ public class TaskService {
                             .nodeId(nodeId)
                             .rootPath(projectInfo.getPath())
                             .compareInfo(compareInfo)
-                            .scanService(scanService)
                             .taskInfo(taskInfo)
-                            .taskInfoMapper(taskInfoMapper)
-                            .analysisSimpleReportMapper(analysisSimpleReportMapper)
                             .preRun(pre)
                             .callBack(callBack)
                             .build()

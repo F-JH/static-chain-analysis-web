@@ -1,20 +1,24 @@
 package com.hsf.core.Recorders;
 
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class ControllerRecord implements Recorder{
     private final Map<String, List<String>> controllers;
 
     public ControllerRecord(){
-        controllers = new HashMap<>();
+        controllers = new ConcurrentHashMap<>();
     }
 
     public void putControlClass(String ControlClassName){
-        controllers.computeIfAbsent(ControlClassName, k -> new ArrayList<>());
+        controllers.computeIfAbsent(ControlClassName, k -> new CopyOnWriteArrayList<>());
     }
 
     public void putControlMethod(String ControlClassName, String ControlMethodName){
-        controllers.computeIfAbsent(ControlClassName, k -> new ArrayList<>());
+        controllers.computeIfAbsent(ControlClassName, k -> new CopyOnWriteArrayList<>());
         controllers.get(ControlClassName).add(ControlMethodName);
     }
 

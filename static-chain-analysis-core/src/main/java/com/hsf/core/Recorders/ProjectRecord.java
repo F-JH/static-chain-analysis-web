@@ -2,14 +2,15 @@ package com.hsf.core.Recorders;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class ProjectRecord implements Recorder{
     private final Set<String> projectPackage;
     private final Set<String> projectMehtods;
 
     public ProjectRecord(){
-        projectPackage = new HashSet<>();
-        projectMehtods = new HashSet<>();
+        projectPackage = ConcurrentHashMap.newKeySet();
+        projectMehtods = ConcurrentHashMap.newKeySet();
     }
 
     public void addProjectPackage(String className){

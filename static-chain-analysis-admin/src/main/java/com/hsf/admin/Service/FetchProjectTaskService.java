@@ -18,7 +18,6 @@ import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import java.io.File;
 import java.util.Objects;
-import java.util.concurrent.ThreadPoolExecutor;
 
 
 @Service
@@ -41,9 +40,6 @@ public class FetchProjectTaskService {
 
     @Autowired
     TaskInfoMapper taskInfoMapper;
-
-    @Autowired
-    ThreadPoolExecutor threadPoolExecutor;
 
     @Resource
     TaskExecutionService taskExecutionService;

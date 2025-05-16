@@ -1,14 +1,17 @@
-package com.hsf.core.Services;
+package com.hsf.admin.Service;
 
 import com.hsf.core.Enums.JdkVersionEnum;
 import com.hsf.core.Recorders.*;
 import com.hsf.core.Utils.ChainUtils;
 import com.hsf.tools.Utils.FileUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
+import org.springframework.stereotype.Service;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import javax.annotation.Resource;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -16,17 +19,26 @@ import java.io.File;
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+import java.util.concurrent.ThreadPoolExecutor;
 
 import static com.hsf.tools.Config.Code.*;
 
 /*
-* 负责扫描并记录
-* 包括：
-*   项目的目录结构
-*   项目的子模块存在更新、新增的
-*   项目内的各种类型，如interface/dubbo/abstract/controller等
-* */
-public class ScanService {
+ * 负责扫描并记录
+ * 包括：
+ *   项目的目录结构
+ *   项目的子模块存在更新、新增的
+ *   项目内的各种类型，如interface/dubbo/abstract/controller等
+ * */
+@Slf4j
+@Service
+public class ScanServiceV2 {
+
+    @Resource(name = "readClassBytesThreadPool")
+    private ThreadPoolExecutor readClassBytesThreadPool;
+
     public List<Recorder> recordProjectClass(JdkVersionEnum jdkVersionEnum, List<String> modules) throws IOException {
         InterfaceRecord interfaceRecord = new InterfaceRecord();
         AbstractRecord abstractRecord = new AbstractRecord();
@@ -39,8 +51,8 @@ public class ScanService {
             for (String filePath : filePaths){
                 ChainUtils.scanForClassName(
                         jdkVersionEnum,
-                    FileUtils.readFileToByteArray(new File(filePath)),
-                    interfaceRecord, abstractRecord, dubboRecord, projectRecord
+                        FileUtils.readFileToByteArray(new File(filePath)),
+                        interfaceRecord, abstractRecord, dubboRecord, projectRecord
                 );
             }
         }
@@ -73,8 +85,8 @@ public class ScanService {
         for(String module:listModules(compareRootPom)){
             // 初始化start
             start.push(new FileNode(
-                new StringBuilder(""),
-                new File(compareDir + URL_SPLIT + module + URL_SPLIT + POM)
+                    new StringBuilder(""),
+                    new File(compareDir + URL_SPLIT + module + URL_SPLIT + POM)
             ));
         }
 
@@ -101,8 +113,8 @@ public class ScanService {
                 }
                 String currentPath = topItem.relativePath.append(URL_SPLIT).append(currentModuleName).toString();
                 start.push(new FileNode(
-                    new StringBuilder(currentPath),
-                    new File(compareDir + currentPath + URL_SPLIT + subModule + URL_SPLIT + POM)
+                        new StringBuilder(currentPath),
+                        new File(compareDir + currentPath + URL_SPLIT + subModule + URL_SPLIT + POM)
                 ));
             }
         }
@@ -140,12 +152,12 @@ public class ScanService {
     }
 
     /*
-    * 根据模块列表，扫描所有调用关系
-    * */
+     * 根据模块列表，扫描所有调用关系
+     * */
     public Map<String, Map<String, List<String>>> getRelationShips(
             JdkVersionEnum jdkVersionEnum,
-        List<String> modules, List<Recorder> recorderList
-    ) throws IOException {
+            List<String> modules, List<Recorder> recorderList
+    ) throws IOException, ExecutionException, InterruptedException {
         if (recorderList.size() != 6){
             return new HashMap<>();
         }
@@ -175,23 +187,48 @@ public class ScanService {
             String rootDir = module + URL_SPLIT + TARGET;
             List<String> filePaths = FileUtil.scanForDirectory(rootDir);
             if (filePaths != null) {
+                Map<String, Future<Map<String, List<String>>>> futureMap = new HashMap<>();
                 for (String filePath : filePaths){
                     String className = filePath.substring(rootDir.length()+1,filePath.lastIndexOf('.'));
                     if(!URL_SPLIT.equals(PACKAGE_SPLIT)){
                         className = className.replace(URL_SPLIT, PACKAGE_SPLIT);
                     }
                     // 考虑多线程扫描
-                    relationShips.put(
-                        className,
-                        ChainUtils.getRelationShipFromClassBuffer(
-                                jdkVersionEnum,
-                            FileUtils.readFileToByteArray(new File(filePath)),
-                            interfaceRecord, abstractRecord, dubboRecord, projectRecord, controllerRecord, apiRecord
-                        )
-                    );
+                    InterfaceRecord finalInterfaceRecord = interfaceRecord;
+                    AbstractRecord finalAbstractRecord = abstractRecord;
+                    DubboRecord finalDubboRecord = dubboRecord;
+                    ProjectRecord finalProjectRecord = projectRecord;
+                    ControllerRecord finalControllerRecord = controllerRecord;
+                    ApiRecord finalApiRecord = apiRecord;
+                    futureMap.put(className, readClassBytesThreadPool.submit(() -> {
+                        try{
+                            return ChainUtils.getRelationShipFromClassBuffer(
+                                    jdkVersionEnum,
+                                    FileUtils.readFileToByteArray(new File(filePath)),
+                                    finalInterfaceRecord, finalAbstractRecord, finalDubboRecord, finalProjectRecord, finalControllerRecord, finalApiRecord
+                            );
+                        }catch (Exception e){
+                            log.error("getRelationShips, IOException: {}", e.getMessage());
+                            throw new RuntimeException(e);
+                        }
+                    }));
+                }
+                while(!futureMap.isEmpty()){
+                    Iterator<Map.Entry<String, Future<Map<String, List<String>>>>> iterator = futureMap.entrySet().iterator();
+                    while(iterator.hasNext()){
+                        Map.Entry<String, Future<Map<String, List<String>>>> entry = iterator.next();
+                        String className = entry.getKey();
+                        Future<Map<String, List<String>>> future = entry.getValue();
+                        if (future.isDone()){
+                            relationShips.put(className, future.get());
+                            iterator.remove();
+                            log.debug("getRelationShips, {}/{}", relationShips.size(), futureMap.size() + relationShips.size());
+                        }
+                    }
                 }
             }
         }
         return relationShips;
     }
 }
+

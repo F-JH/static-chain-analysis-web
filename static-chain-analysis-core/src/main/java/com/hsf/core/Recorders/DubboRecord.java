@@ -2,13 +2,14 @@ package com.hsf.core.Recorders;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class DubboRecord implements Recorder{
     private final List<String> dubboMethods;
 
 
     public DubboRecord(){
-        dubboMethods = new ArrayList<>();
+        dubboMethods = new CopyOnWriteArrayList<>();
     }
     public void putDubboMethod(String fullMethodName){
         dubboMethods.add(fullMethodName);

@@ -18,8 +18,5 @@ public class AnalysisTaskDTO {
     private CompareInfo compareInfo;
     private PreRun preRun;
     private CallBack callBack;
-    private TaskInfoMapper taskInfoMapper;
     private TaskInfo taskInfo;
-    private ScanService scanService;
-    private AnalysisSimpleReportMapper analysisSimpleReportMapper;
 }

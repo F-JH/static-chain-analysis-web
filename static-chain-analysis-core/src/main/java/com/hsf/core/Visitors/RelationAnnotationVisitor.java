@@ -20,6 +20,7 @@ public class RelationAnnotationVisitor extends AnnotationVisitor {
         super(jdkVersionEnum.getCode(), av);
         this.paths = paths;
         this.parentPaths = parentPaths;
+        this.jdkVersionEnum = jdkVersionEnum;
     }
 
     @Override
@@ -34,7 +35,7 @@ public class RelationAnnotationVisitor extends AnnotationVisitor {
 
     @Override
     public void visit(String name, Object value){
-        // 主要提供给 annotationVisitor1 访问
+        // 主要提供给 annotationVisitor1 访问，annotationVisitor1 用于访问数组类型的注解参数
         if(parentPaths.size() > 0){
             for(String parentPath:parentPaths)
                 paths.add(parentPath + (String) value);

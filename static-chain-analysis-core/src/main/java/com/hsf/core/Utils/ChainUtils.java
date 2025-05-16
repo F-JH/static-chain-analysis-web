@@ -84,7 +84,7 @@ public class ChainUtils {
             String currentClassName = (String) currentNode[0];
             String currentMethodName = (String) currentNode[1];
             List<String> currentChain = (List<String>) currentNode[2];
-            List<String> methodRelationShip = relationShips.get(currentClassName).get(currentMethodName);
+            List<String> methodRelationShip = relationShips.get(currentClassName).getOrDefault(currentMethodName, new ArrayList<>());
             JSONObject currentRelation = (JSONObject) currentNode[3];
             // 处理接口或抽象类
             if(interfaceRecord.containInterface(currentClassName) || abstractRecord.containAbstract(currentClassName)){
@@ -94,9 +94,10 @@ public class ChainUtils {
                     entries = abstractRecord.getEntries(currentClassName);
                     abstractMethod = abstractRecord.getMethod(currentClassName);
                 }
+                // abstract implements interface 的情况，需要考虑下
                 for(String entryClassName:entries){
                     // 存在default方法，需要判断是否被实体类复写
-                    if(!abstractMethod.get(currentMethodName)){
+                    if(abstractMethod.get(currentMethodName) != null && !abstractMethod.get(currentMethodName)){
                         // default或者抽象类中有实体的方法
                         if(relationShips.get(entryClassName).containsKey(currentMethodName)){
                             // 实体类有复写这个方法，但是静态分析下无法判断实际跑的是哪一个方法，所以都要加进去
@@ -107,8 +108,8 @@ public class ChainUtils {
                     }
                 }
             }
-            if(methodRelationShip.size()>0){
-                for(String fullMethodName:methodRelationShip){
+            if(methodRelationShip != null && !methodRelationShip.isEmpty()){
+                for(String fullMethodName : methodRelationShip){
                     // 解开methodRelationShip，加到stack中，并与往json里添加
                     JSONObject tmpRelation = new JSONObject();
                     currentRelation.put(fullMethodName, tmpRelation);

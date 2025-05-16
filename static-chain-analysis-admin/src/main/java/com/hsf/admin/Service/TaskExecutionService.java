@@ -19,7 +19,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 public class TaskExecutionService {
     @Resource
     private ApplicationContext applicationContext;
-    @Resource
+    @Resource(name = "taskThreadPool")
     private ThreadPoolExecutor taskThreadPool;
 
     private final Map<String, BaseTaskExecutor> taskExecutors = new LinkedHashMap<>();

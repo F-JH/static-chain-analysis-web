@@ -3,16 +3,16 @@ package com.hsf.core.Recorders;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class ApiRecord implements Recorder{
     private final Map<String, Set<String>> record;
 
     public ApiRecord(){
-        record = new HashMap<>();
+        record = new ConcurrentHashMap<>();
     }
 
     public void putApi(String fullMethodName, Set<String> api){
-//        record.computeIfAbsent(fullMethodName, k -> new HashSet<>());
         record.put(fullMethodName, api);
     }
 

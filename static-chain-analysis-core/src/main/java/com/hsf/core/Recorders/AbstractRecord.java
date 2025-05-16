@@ -1,9 +1,10 @@
 package com.hsf.core.Recorders;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class AbstractRecord implements Recorder{
 
@@ -11,18 +12,18 @@ public class AbstractRecord implements Recorder{
     private final Map<String, Map<String, Boolean>> abstractMethodList;
 
     public AbstractRecord(){
-        record = new HashMap<>();
-        abstractMethodList = new HashMap<>();
+        record = new ConcurrentHashMap<>();
+        abstractMethodList = new ConcurrentHashMap<>();
     }
 
     public void putAbstractClass(String className){
-        record.computeIfAbsent(className, k -> new ArrayList<>());
-        abstractMethodList.computeIfAbsent(className, k -> new HashMap<>());
+        record.computeIfAbsent(className, k -> new CopyOnWriteArrayList<>());
+        abstractMethodList.computeIfAbsent(className, k -> new ConcurrentHashMap<>());
     }
 
     public void putAbstractEntry(String abstractClassName, String entryClassName){
-        record.computeIfAbsent(abstractClassName, k -> new ArrayList<>());
-        abstractMethodList.computeIfAbsent(abstractClassName, k -> new HashMap<>());
+        record.computeIfAbsent(abstractClassName, k -> new CopyOnWriteArrayList<>());
+        abstractMethodList.computeIfAbsent(abstractClassName, k -> new ConcurrentHashMap<>());
         record.get(abstractClassName).add(entryClassName);
     }
 

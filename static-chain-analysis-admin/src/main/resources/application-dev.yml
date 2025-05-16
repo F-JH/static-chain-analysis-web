@@ -15,3 +15,6 @@ env:
     mavenHome: /Users/10234614/Applications/IntelliJ IDEA Ultimate.app/Contents/plugins/maven/lib/maven3
     mavenSettings: /Users/10234614/.m2/shein_settings.xml
     javaHome: /Library/Java/JavaVirtualMachines/jdk-17.jdk/Contents/Home
+logging:
+    level:
+        root: info
