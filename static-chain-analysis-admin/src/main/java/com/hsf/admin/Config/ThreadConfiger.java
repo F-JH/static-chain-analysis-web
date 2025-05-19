@@ -16,7 +16,7 @@ public class ThreadConfiger {
                 100,
                 30,
                 TimeUnit.SECONDS,
-                new LinkedBlockingQueue<>(100),
+                new LinkedBlockingQueue<>(),
                 new ThreadPoolExecutor.DiscardPolicy()
         );
     }

@@ -31,7 +31,7 @@ public class PullTask extends BaseTaskExecutor {
         PullTaskDTO pullTaskDTO = (PullTaskDTO) request.getTaskPO();
         TaskExecutionResponse response = new TaskExecutionResponse();
 
-        File dir = new File(pullTaskDTO.getProjectDir());
+        File dir = new File(pullTaskDTO.getProjectDir() + File.separator + "master");
         pullTaskDTO.getTaskInfo().setStatus(TaskStatus.RUNNING.code);
         pullTaskDTO.getTaskInfoMapper().updateTaskInfo(pullTaskDTO.getTaskInfo());
         log.info("[" + pullTaskDTO.getTaskInfo().getId() + "]" + "git pull " + pullTaskDTO.getProjectDir());
@@ -56,6 +56,7 @@ public class PullTask extends BaseTaskExecutor {
             pullTaskDTO.getProjectInfo().setLastSyncTime(new Date());
             pullTaskDTO.getProjectInfoMapper().updateProjectInfo(pullTaskDTO.getProjectInfo());
             pullTaskDTO.getTaskInfoMapper().updateTaskInfo(pullTaskDTO.getTaskInfo());
+            log.info("[" + pullTaskDTO.getTaskInfo().getId() + "]" + "git pull " + pullTaskDTO.getProjectDir() + " success");
         }catch (GitAPIException | IOException | IllegalArgumentException e){
             log.error("[" + pullTaskDTO.getTaskInfo().getId() + "]" + "git pull " + pullTaskDTO.getProjectDir() + " error: " + e.getMessage());
             pullTaskDTO.getTaskInfo().setStatus(TaskStatus.FAILD.code);

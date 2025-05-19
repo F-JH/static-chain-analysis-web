@@ -38,7 +38,7 @@ public class CompileTask extends BaseTaskExecutor {
         log.info("compile " + projectDir);
         InvocationRequest invocationRequest = new DefaultInvocationRequest();
         invocationRequest.setPomFile(new File(projectDir + URL_SPLIT + POM));
-        invocationRequest.setGoals(Arrays.asList("clean", "compile"));
+        invocationRequest.setGoals(Arrays.asList("clean", "compile", "-Dmaven.test.skip=true"));
         invocationRequest.setUserSettingsFile(new File(compileTaskDTO.getMavenSettings()));
         Invoker invoker = new DefaultInvoker();
         // 设置日志级别

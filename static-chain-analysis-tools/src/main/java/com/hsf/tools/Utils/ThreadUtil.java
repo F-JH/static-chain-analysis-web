@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
 public class ThreadUtil {
     public static <E, T> ThreadMapResult<E, T> getFutureResult(Map<E, Future<T>> futures) throws InterruptedException {
         ThreadMapResult<E, T> result = new ThreadMapResult<>(new HashMap<>(), new HashMap<>());
+        int cnt = futures.size();
         while (!futures.isEmpty()){
             futures = futures.entrySet().stream().filter(entry -> {
                 if (entry.getValue().isDone()){
@@ -30,7 +31,10 @@ public class ThreadUtil {
                 )
             );
             Thread.sleep(5000);
-            log.info("处理中，剩余任务数：{}", futures.size());
+            if (cnt != futures.size()){
+                log.info("处理中，剩余任务数：{}", futures.size());
+                cnt = futures.size();
+            }
         }
         return result;
     }

@@ -10,6 +10,7 @@ import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.MethodVisitor;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static org.objectweb.asm.Opcodes.ASM7;
 
@@ -17,7 +18,7 @@ public class RelationClassVisitor extends ClassVisitor {
 
     private String className;
     @Getter
-    private final Map<String, List<String>> methodRelations = new HashMap<>();
+    private final Map<String, List<String>> methodRelations = new ConcurrentHashMap<>();
     private final InterfaceRecord interfaceRecord;
     private final AbstractRecord abstractRecord;
     private final ProjectRecord projectRecord;
@@ -30,7 +31,7 @@ public class RelationClassVisitor extends ClassVisitor {
     private Set<String> requestMappingValue;
     // 记录全部子方法的api入口
     @Getter
-    private final Map<String, Set<String>> recordMapping = new HashMap<>();
+    private final Map<String, Set<String>> recordMapping = new ConcurrentHashMap<>();
     private final JdkVersionEnum jdkVersionEnum;
 
     public RelationClassVisitor(

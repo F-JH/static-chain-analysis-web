@@ -15,6 +15,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static com.hsf.tools.Config.Code.METHOD_SPLIT;
 
@@ -63,7 +64,7 @@ public class RelationMethodVisitor extends AdviceAdapter{
         if(FilterUtils.isRequestAnnotation(descriptor)){
             // request的方法
             controllerRecord.putControlMethod(className, BasicUtil.getMethodSignatureName(methodName, desc));
-            requestMappingValue = new HashSet<>();
+            requestMappingValue = ConcurrentHashMap.newKeySet();
             // 这里去获取方法的 requestMappingValue
             // 故而：requestMappingValue记录自己的，parentPath上一级(比如类)传过来的 requestMappingValue
             return new RelationAnnotationVisitor(jdkVersionEnum, super.visitAnnotation(descriptor, visiable), requestMappingValue, parentPath);

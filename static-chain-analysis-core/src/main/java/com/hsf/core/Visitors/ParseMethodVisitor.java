@@ -8,11 +8,12 @@ import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static com.hsf.tools.Config.Code.*;
 
 public class ParseMethodVisitor extends VoidVisitorAdapter<String> {
-    private final Map<String, MethodDeclaration> mds = new HashMap<>();
+    private final Map<String, MethodDeclaration> mds = new ConcurrentHashMap<>();
 
     @Override
     public void visit(MethodDeclaration n, String arg){
