@@ -11,6 +11,7 @@ import org.objectweb.asm.MethodVisitor;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import static org.objectweb.asm.Opcodes.ASM7;
 
@@ -68,7 +69,7 @@ public class RelationClassVisitor extends ClassVisitor {
 
     @Override
     public MethodVisitor visitMethod(int access, String name, String descriptor, String signature, String[] exceptions){
-        List<String> methodRelation = new ArrayList<>();
+        List<String> methodRelation = new CopyOnWriteArrayList<>();
         // 处理一下方法名，适配javaparser
         String signatureName = BasicUtil.getMethodSignatureName(name, descriptor);
         methodRelations.put(signatureName, methodRelation);
@@ -97,8 +98,8 @@ public class RelationClassVisitor extends ClassVisitor {
         }
         if(FilterUtils.isRequestAnnotation(descriptor)){
             hasRequestMapping = true;
-            requestMappingValue = new HashSet<>();
-            Set<String> parentPath = new HashSet<>();
+            requestMappingValue = ConcurrentHashMap.newKeySet();
+            Set<String> parentPath = ConcurrentHashMap.newKeySet();
             // 这里去获取类的 requestMappingValue
             return new RelationAnnotationVisitor(jdkVersionEnum, super.visitAnnotation(descriptor, visiable), requestMappingValue, parentPath);
         }
