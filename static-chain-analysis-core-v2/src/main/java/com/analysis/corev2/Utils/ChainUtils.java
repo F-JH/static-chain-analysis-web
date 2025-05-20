@@ -39,84 +39,11 @@ public class ChainUtils {
         cr.accept(cv, ClassReader.SKIP_FRAMES);
     }
 
-    public static Integer scanRelationShipFromClassBuffer(JdkVersionEnum jdkVersionEnum, byte[] classfileBuffer, RecordDTO recordDTO){
+    public static void scanRelationShipFromClassBuffer(JdkVersionEnum jdkVersionEnum, byte[] classfileBuffer, RecordDTO recordDTO){
         ClassReader cr = new ClassReader(classfileBuffer);
         ClassWriter cw = new ClassWriter(cr, ClassWriter.COMPUTE_FRAMES | ClassWriter.COMPUTE_MAXS);
         RelationClassVisitor cv = new RelationClassVisitor(jdkVersionEnum, cw, recordDTO);
         cr.accept(cv, ClassReader.SKIP_FRAMES);
-
-        return 0;
-    }
-
-    /**
-     * {
-     *     "com/bot/server/qqBot/envGet:getByEnv|(Ljava/lang/String;)Ljava/lang/String;":{
-     *         "com/bot/server/qqBot/mapper/postMethod:run|(Lcom/alibaba/fastjson/JSONObject;Lcom/alibaba/fastjson/JSONObject;Ljava/lang/Integer;)Ljava/lang/String":{
-     *             ...
-     *         }
-     *     },
-     *     "com/bot/server/qqBot/envGet:test|(Ljava/lang/String;)Ljava/lang/String;":{
-     *         ...
-     *     }
-     * }
-     * @param relationShips
-     * @param startFullMethodName
-     * @return
-     */
-    public static JSONObject getJSONChainFromRelationShip(Map<String, Map<String, List<String>>> relationShips, String startFullMethodName, RecordDTO recordDTO){
-        String className = startFullMethodName.substring(0, startFullMethodName.indexOf(METHOD_SPLIT));
-        String methodName = startFullMethodName.substring(startFullMethodName.indexOf(METHOD_SPLIT)+1);
-        Stack<Object[]> stack = new Stack<>();
-        JSONObject relation = new JSONObject();
-        List<String> startChain = new ArrayList<>();
-        startChain.add(startFullMethodName);
-        Object[] initNode = new Object[]{className, methodName, startChain, relation};
-        stack.push(initNode);
-        while(!stack.empty()){
-            Object[] currentNode = stack.pop();
-            String currentClassName = (String) currentNode[0];
-            String currentMethodName = (String) currentNode[1];
-            List<String> currentChain = (List<String>) currentNode[2];
-            List<String> methodRelationShip = relationShips.get(currentClassName).getOrDefault(currentMethodName, new ArrayList<>());
-            JSONObject currentRelation = (JSONObject) currentNode[3];
-            // 处理接口或抽象类
-            if(recordDTO.getInterfaceRecord().containInterface(currentClassName) || recordDTO.getAbstractRecord().containAbstract(currentClassName)){
-                List<String> entries = recordDTO.getInterfaceRecord().getEntries(currentClassName);
-                Map<String, Boolean> abstractMethod = recordDTO.getInterfaceRecord().getMethod(currentClassName);
-                if(entries==null){
-                    entries = recordDTO.getAbstractRecord().getEntries(currentClassName);
-                    abstractMethod = recordDTO.getAbstractRecord().getMethod(currentClassName);
-                }
-                // abstract implements interface 的情况，需要考虑下
-                for(String entryClassName:entries){
-                    // 存在default方法，需要判断是否被实体类复写
-                    if(abstractMethod.get(currentMethodName) != null && !abstractMethod.get(currentMethodName)){
-                        // default或者抽象类中有实体的方法
-                        if(relationShips.get(entryClassName).containsKey(currentMethodName)){
-                            // 实体类有复写这个方法，但是静态分析下无法判断实际跑的是哪一个方法，所以都要加进去
-                            methodRelationShip.add(entryClassName + METHOD_SPLIT + currentMethodName);
-                        }
-                    }else{
-                        methodRelationShip.add(entryClassName + METHOD_SPLIT + currentMethodName);
-                    }
-                }
-            }
-            if(methodRelationShip != null && !methodRelationShip.isEmpty()){
-                for(String fullMethodName : methodRelationShip){
-                    // 解开methodRelationShip，加到stack中，并与往json里添加
-                    JSONObject tmpRelation = new JSONObject();
-                    currentRelation.put(fullMethodName, tmpRelation);
-                    if(!currentChain.contains(fullMethodName)){
-                        String tmpClassName = fullMethodName.substring(0, fullMethodName.indexOf(METHOD_SPLIT));
-                        String tmpMethodName = fullMethodName.substring(fullMethodName.indexOf(METHOD_SPLIT)+1);
-                        List<String> tmpChain = new ArrayList<String>(currentChain);
-                        tmpChain.add(fullMethodName);
-                        stack.add(new Object[]{tmpClassName, tmpMethodName, tmpChain, tmpRelation});
-                    }
-                }
-            }
-        }
-        return relation;
     }
 
     /*
