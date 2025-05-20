@@ -69,6 +69,11 @@
             <groupId>org.apache.maven.shared</groupId>
             <artifactId>maven-invoker</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.hsf.static.analysis</groupId>
+            <artifactId>static-chain-analysis-core-v2</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
     </dependencies>
 
     <build>

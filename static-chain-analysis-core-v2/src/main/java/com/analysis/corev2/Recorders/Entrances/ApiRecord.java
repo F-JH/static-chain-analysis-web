@@ -1,0 +1,23 @@
+package com.analysis.corev2.Recorders.Entrances;
+
+import com.analysis.corev2.Recorders.Recorder;
+
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+
+public class ApiRecord implements Recorder {
+    private final Map<String, Set<String>> record;
+
+    public ApiRecord(){
+        record = new ConcurrentHashMap<>();
+    }
+
+    public void putApi(String fullMethodName, Set<String> api){
+        record.put(fullMethodName, api);
+    }
+
+    public Set<String> getApis(String fullMethodName){
+        return record.get(fullMethodName);
+    }
+}

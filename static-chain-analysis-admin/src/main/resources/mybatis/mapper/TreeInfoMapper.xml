@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Config 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.hsf.admin.Mapper.TreeInfoMapper">
-    <resultMap id="TreeInfo" type="com.hsf.admin.Pojo.Entities.TreeInfo">
+<mapper namespace="com.analysis.admin.Mapper.TreeInfoMapper">
+    <resultMap id="TreeInfo" type="com.analysis.admin.Pojo.Entities.TreeInfo">
         <id column="node_id" property="nodeId" jdbcType="INTEGER" />
         <result column="parent_id" property="parentId" jdbcType="INTEGER" />
         <result column="name" property="name" jdbcType="VARCHAR" />
@@ -13,7 +13,7 @@
         <result column="status" property="status" jdbcType="INTEGER" />
     </resultMap>
 
-    <select id="getTreeInfo" resultType="com.hsf.admin.Pojo.Entities.TreeInfo">
+    <select id="getTreeInfo" resultType="com.analysis.admin.Pojo.Entities.TreeInfo">
         select
             node_id, parent_id, name, lft, rgt, is_directory, git_url, credential_id, status
         from
@@ -26,7 +26,7 @@
     </select>
 
 <!--    添加节点-->
-    <insert id="addNode" parameterType="com.hsf.admin.Pojo.Requests.GitInfoRequest" useGeneratedKeys="true">
+    <insert id="addNode" parameterType="com.analysis.admin.Pojo.Requests.GitInfoRequest" useGeneratedKeys="true">
         <if test="!node.tree.isDirectory">
             select @nodeLft := rgt from file_tree_info where node_id = #{node.tree.parentId};
         </if>
@@ -47,7 +47,7 @@
         </selectKey>
     </insert>
 
-    <insert id="addNodeV2" parameterType="com.hsf.admin.Pojo.Requests.GitInfoRequest" useGeneratedKeys="true">
+    <insert id="addNodeV2" parameterType="com.analysis.admin.Pojo.Requests.GitInfoRequest" useGeneratedKeys="true">
         <if test="node.tree.isDirectory">
             select
                 @nodeLft := ifnull(lft, rgt)

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Config 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.hsf.admin.Mapper.ProjectInfoMapper">
-    <resultMap id="projectInfo" type="com.hsf.admin.Pojo.Entities.ProjectInfo">
+<mapper namespace="com.analysis.admin.Mapper.ProjectInfoMapper">
+    <resultMap id="projectInfo" type="com.analysis.admin.Pojo.Entities.ProjectInfo">
         <id column="id" property="id" jdbcType="INTEGER" />
         <result column="node_id" property="nodeId" jdbcType="INTEGER" />
         <result column="path" property="path" jdbcType="VARCHAR" />
@@ -10,16 +10,16 @@
         <result column="last_sync_time" property="lastSyncTime" jdbcType="TIMESTAMP" />
     </resultMap>
 
-    <select id="getProjectInfo" resultType="com.hsf.admin.Pojo.Entities.ProjectInfo">
+    <select id="getProjectInfo" resultType="com.analysis.admin.Pojo.Entities.ProjectInfo">
         select id, node_id, path, create_time, update_time, last_sync_time from project_git_info where node_id = #{nodeId}
     </select>
 
-    <insert id="insertProjectInfo" parameterType="com.hsf.admin.Pojo.Entities.ProjectInfo">
+    <insert id="insertProjectInfo" parameterType="com.analysis.admin.Pojo.Entities.ProjectInfo">
         insert into project_git_info (node_id)
         values(#{info.nodeId})
     </insert>
 
-    <update id="updateProjectInfo" parameterType="com.hsf.admin.Pojo.Entities.ProjectInfo">
+    <update id="updateProjectInfo" parameterType="com.analysis.admin.Pojo.Entities.ProjectInfo">
         update project_git_info
         set path = #{info.path}, last_sync_time = #{info.lastSyncTime}
         where node_id = #{info.nodeId}

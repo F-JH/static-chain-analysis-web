@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Config 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.hsf.admin.Mapper.FetchMapper">
-    <resultMap id="FetchInfo" type="com.hsf.admin.Pojo.Entities.FetchInfo">
+<mapper namespace="com.analysis.admin.Mapper.FetchMapper">
+    <resultMap id="FetchInfo" type="com.analysis.admin.Pojo.Entities.FetchInfo">
         <result column="git_url" property="gitUrl" jdbcType="VARCHAR" />
         <result column="status" property="status" jdbcType="INTEGER" />
         <result column="path" property="path" jdbcType="VARCHAR" />

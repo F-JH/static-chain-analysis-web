@@ -19,6 +19,7 @@
         <module>static-chain-analysis-admin</module>
         <module>static-chain-analysis-tools</module>
         <module>static-chain-analysis-core</module>
+        <module>static-chain-analysis-core-v2</module>
     </modules>
 
     <properties>

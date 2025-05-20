@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Config 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.hsf.admin.Mapper.BranchDirInfoMapper">
-    <resultMap id="branchDirInfo" type="com.hsf.admin.Pojo.Entities.BranchDirInfo">
+<mapper namespace="com.analysis.admin.Mapper.BranchDirInfoMapper">
+    <resultMap id="branchDirInfo" type="com.analysis.admin.Pojo.Entities.BranchDirInfo">
         <id column="project_id" property="projectId" jdbcType="INTEGER" />
         <result column="branch_name" property="branchName" jdbcType="VARCHAR" />
         <result column="path" property="path" jdbcType="VARCHAR" />
@@ -21,7 +21,7 @@
             and branch_name = #{branchName};
     </select>
 
-    <insert id="insertBranchDirInfo" parameterType="com.hsf.admin.Pojo.Entities.BranchDirInfo">
+    <insert id="insertBranchDirInfo" parameterType="com.analysis.admin.Pojo.Entities.BranchDirInfo">
         insert into branch_dir_info (project_id, branch_name)
         select
             #{branchDirInfo.projectId}, #{branchDirInfo.branchName}
