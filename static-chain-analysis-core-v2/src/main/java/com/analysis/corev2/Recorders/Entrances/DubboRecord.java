@@ -19,8 +19,4 @@ public class DubboRecord implements Recorder {
     public boolean contains(String fullMethodName){
         return dubboMethods.contains(fullMethodName);
     }
-
-    public List<String> getList(){
-        return dubboMethods;
-    }
 }

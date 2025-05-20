@@ -40,12 +40,7 @@ public class ScanServiceV3 {
     private ThreadPoolExecutor readClassBytesThreadPool;
 
     public RecordDTO recordProjectClass(JdkVersionEnum jdkVersionEnum, List<String> modules) throws IOException {
-        RecordDTO recordDTO = RecordDTO.builder()
-                .interfaceRecord(new InterfaceRecord())
-                .abstractRecord(new AbstractRecord())
-                .dubboRecord(new DubboRecord())
-                .projectRecord(new ProjectRecord())
-                .build();
+        RecordDTO recordDTO = new RecordDTO();
 
         for (String module : modules){
             String rootDir = module + URL_SPLIT + TARGET;

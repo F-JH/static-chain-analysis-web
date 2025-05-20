@@ -85,13 +85,6 @@ public class AnalysisTask extends BaseTaskExecutor {
             allModules.addAll(normalModules);
 
             RecordDTO recorders = scanService.recordProjectClass(JdkVersionEnum.JDK17, allModules);
-            ApiRecord apiRecord = new ApiRecord();
-            ControllerRecord controllerRecord = new ControllerRecord();
-
-            recorders.setApiRecord(apiRecord);
-            recorders.setControllerRecord(controllerRecord);
-            recorders.setRelationRecord(new RelationRecord());
-            recorders.setRelationReverseRecord(new RelationReverseRecord());
             scanService.scanRelationShips(JdkVersionEnum.JDK17, allModules, recorders);
 
             log.info("检查更新");

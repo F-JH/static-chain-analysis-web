@@ -6,6 +6,8 @@ import lombok.Data;
 
 import java.util.Map;
 
+import static com.analysis.tools.Config.Code.METHOD_SPLIT;
+
 @Data
 @Builder
 public class ChainNode {
@@ -14,4 +16,9 @@ public class ChainNode {
 
     private String currentClassName;
     private String currentMethodName;
+
+    @Override
+    public String toString(){
+        return currentClassName + METHOD_SPLIT + currentMethodName;
+    }
 }

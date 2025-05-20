@@ -7,13 +7,11 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 
-import java.util.List;
 import java.util.Set;
 
 import static com.analysis.tools.Config.Code.*;
 
 @Data
-@Builder
 public class RecordDTO {
     private InterfaceRecord interfaceRecord;
     private AbstractRecord abstractRecord;
@@ -23,6 +21,19 @@ public class RecordDTO {
     private ControllerRecord controllerRecord;
     private RelationRecord relationRecord;
     private RelationReverseRecord relationReverseRecord;
+    private KafkaRecord kafkaRecord;
+
+    public RecordDTO(){
+        interfaceRecord = new InterfaceRecord();
+        abstractRecord = new AbstractRecord();
+        dubboRecord = new DubboRecord();
+        projectRecord = new ProjectRecord();
+        apiRecord = new ApiRecord();
+        controllerRecord = new ControllerRecord();
+        relationRecord = new RelationRecord();
+        relationReverseRecord = new RelationReverseRecord();
+        kafkaRecord = new KafkaRecord();
+    }
 
     /*
         传入方法名，检查是否是入口函数
@@ -40,6 +51,9 @@ public class RecordDTO {
         }
 
         // Kafka
+        if (kafkaRecord.contains(fullMethodName)){
+            return new Entrance(KAFKA, Set.of(fullMethodName));
+        }
 
         return null;
     }

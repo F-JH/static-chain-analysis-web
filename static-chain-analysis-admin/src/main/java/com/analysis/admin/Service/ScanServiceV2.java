@@ -181,16 +181,7 @@ public class ScanServiceV2 {
                 apiRecord = (ApiRecord) recorder;
         }
 
-        RecordDTO recordDTO = RecordDTO.builder()
-                .interfaceRecord(new com.analysis.corev2.Recorders.Entrances.InterfaceRecord())
-                .abstractRecord(new com.analysis.corev2.Recorders.Entrances.AbstractRecord())
-                .dubboRecord(new com.analysis.corev2.Recorders.Entrances.DubboRecord())
-                .projectRecord(new com.analysis.corev2.Recorders.Entrances.ProjectRecord())
-                .controllerRecord(new com.analysis.corev2.Recorders.Entrances.ControllerRecord())
-                .apiRecord(new com.analysis.corev2.Recorders.Entrances.ApiRecord())
-                .relationRecord(new com.analysis.corev2.Recorders.Relation.RelationRecord())
-                .relationReverseRecord(new com.analysis.corev2.Recorders.Relation.RelationReverseRecord())
-                .build();
+        RecordDTO recordDTO = new RecordDTO();
 
         Map<String, Map<String, List<String>>> relationShips = new ConcurrentHashMap<>();
         for (String module : modules){
