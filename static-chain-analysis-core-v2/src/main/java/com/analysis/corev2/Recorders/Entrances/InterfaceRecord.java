@@ -2,6 +2,8 @@ package com.analysis.corev2.Recorders.Entrances;
 
 import com.analysis.corev2.Recorders.Recorder;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -36,14 +38,10 @@ public class InterfaceRecord implements Recorder {
     }
 
     public List<String> getEntries(String interfaceClassName){
-        return interfaceList.get(interfaceClassName);
+        return interfaceList.getOrDefault(interfaceClassName, new ArrayList<>());
     }
 
     public Map<String, Boolean> getMethod(String interfaceClassName){
-        return interfaceMethodList.get(interfaceClassName);
+        return interfaceMethodList.getOrDefault(interfaceClassName, new HashMap<>());
     }
-
-//    public Map<String, List<String>> getInterfaceList() {
-//        return interfaceList;
-//    }
 }

@@ -2,6 +2,8 @@ package com.analysis.corev2.Recorders.Entrances;
 
 import com.analysis.corev2.Recorders.Recorder;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -35,9 +37,9 @@ public class AbstractRecord implements Recorder {
         return record.containsKey(abstractClassName);
     }
     public List<String> getEntries(String className){
-        return record.get(className);
+        return record.getOrDefault(className, new ArrayList<>());
     }
     public Map<String, Boolean> getMethod(String abstractClassName){
-        return abstractMethodList.get(abstractClassName);
+        return abstractMethodList.getOrDefault(abstractClassName, new HashMap<>());
     }
 }

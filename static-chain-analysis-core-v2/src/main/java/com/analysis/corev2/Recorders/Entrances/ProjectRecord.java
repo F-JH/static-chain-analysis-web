@@ -1,10 +1,12 @@
 package com.analysis.corev2.Recorders.Entrances;
 
 import com.analysis.corev2.Recorders.Recorder;
+import lombok.Getter;
 
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+@Getter
 public class ProjectRecord implements Recorder {
     private final Set<String> projectPackage;
     private final Set<String> projectMehtods;
@@ -19,14 +21,6 @@ public class ProjectRecord implements Recorder {
     }
     public void addProjectMethod(String fullMethodName){
         projectMehtods.add(fullMethodName);
-    }
-
-    public Set<String> getProjectPackage() {
-        return projectPackage;
-    }
-
-    public Set<String> getProjectMehtods() {
-        return projectMehtods;
     }
 
     public boolean isNeedInject(String className){

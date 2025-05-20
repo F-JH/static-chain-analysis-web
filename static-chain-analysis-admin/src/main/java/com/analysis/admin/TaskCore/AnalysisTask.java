@@ -31,6 +31,7 @@ import javax.annotation.Resource;
 import java.util.*;
 import java.util.concurrent.Future;
 import java.util.concurrent.ThreadPoolExecutor;
+import java.util.stream.Collectors;
 
 import static com.analysis.tools.Config.Code.*;
 
@@ -127,15 +128,21 @@ public class AnalysisTask extends BaseTaskExecutor {
                 // 测试链路，直接返回
                 return Response.success(response);
             }
+            Set<String> apis = new HashSet<>();
             relationShips.getResult().forEach((key, value) -> {
 //                ChainNode startNode = value.getFirst();
                 List<RecordDTO.Entrance> entrances = value.getSecond();
                 entrances.forEach(entrance -> {
-                    AnalysisSimpleReport analysisSimpleReport = new AnalysisSimpleReport();
-                    analysisSimpleReport.setTaskId(analysisTaskDTO.getTaskInfo().getId());
-                    analysisSimpleReport.setType(entrance.getType());
-                    analysisSimpleReport.setApiName(entrance.getValue().toString());
-                    analysisSimpleReports.add(analysisSimpleReport);
+                    String api = String.join(",", entrance.getValue());
+                    // 去重
+                    if (!apis.contains(api)){
+                        apis.add(api);
+                        AnalysisSimpleReport analysisSimpleReport = new AnalysisSimpleReport();
+                        analysisSimpleReport.setTaskId(analysisTaskDTO.getTaskInfo().getId());
+                        analysisSimpleReport.setType(entrance.getType());
+                        analysisSimpleReport.setApiName(api);
+                        analysisSimpleReports.add(analysisSimpleReport);
+                    }
                 });
             });
             int fromIndex = 0;
