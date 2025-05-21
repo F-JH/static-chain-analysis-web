@@ -52,7 +52,8 @@ public class RecordDTO {
 
         // Kafka
         if (kafkaRecord.contains(fullMethodName)){
-            return new Entrance(KAFKA, Set.of(fullMethodName));
+            String topic = kafkaRecord.getKafkaTopic(fullMethodName);
+            return new Entrance(KAFKA, Set.of(topic));
         }
 
         return null;

@@ -1,5 +1,6 @@
 package com.analysis.corev2.Visitors.Relation;
 
+import com.analysis.corev2.Enums.EntranceEnums;
 import com.analysis.corev2.Enums.JdkVersionEnum;
 import com.analysis.corev2.Entitys.DTO.RecordDTO;
 import com.analysis.tools.Utils.BasicUtil;
@@ -62,7 +63,7 @@ public class RelationMethodVisitor extends AdviceAdapter{
 
     @Override
     public AnnotationVisitor visitAnnotation(String descriptor, boolean visiable){
-        if(FilterUtils.isRequestAnnotation(descriptor)){
+        if(EntranceEnums.isRequestAnnotation(descriptor)){
             // request的方法
             recordDTO.getControllerRecord().putControlMethod(className, BasicUtil.getMethodSignatureName(methodName, desc));
             requestMappingValue = ConcurrentHashMap.newKeySet();

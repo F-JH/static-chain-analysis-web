@@ -7,9 +7,14 @@ import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
+import org.xml.sax.EntityResolver;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
 
-import java.io.File;
+import java.io.*;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 import static com.analysis.tools.Config.Code.*;
 
@@ -30,6 +35,7 @@ public class XmlDiffUtil {
      */
     public static List<String> compireXml(String oldFile, String newFile) throws DocumentException {
         SAXReader reader = new SAXReader();
+        reader.setEntityResolver(new SAXEntityResolver(reader.getEntityResolver()));
         Document oldDocument = reader.read(new File(oldFile));
         Document newDocument = reader.read(new File(newFile));
         Element oldRoot = oldDocument.getRootElement();
@@ -119,6 +125,39 @@ public class XmlDiffUtil {
         private ElementNode(Element element, JSONArray json){
             this.element = element;
             this.json = json;
+        }
+    }
+
+    protected static class SAXEntityResolver implements EntityResolver, Serializable {
+        protected EntityResolver resolver;
+        private static final Map<String, String> dtdCache = new ConcurrentHashMap<>();
+
+        public SAXEntityResolver(EntityResolver resolver) {
+            if (resolver == null) {
+                throw new IllegalArgumentException("EntityResolver cannot be null");
+            }
+            this.resolver = resolver;
+        }
+
+        public InputSource resolveEntity(String publicId, String systemId) throws IOException, SAXException {
+            if (!dtdCache.containsKey(systemId)) {
+                InputSource inputSource = resolver.resolveEntity(publicId, systemId);
+                if (inputSource != null) {
+                    if (inputSource.getByteStream() != null) {
+                        // Read byte stream and cache it
+                        byte[] content = inputSource.getByteStream().readAllBytes();
+                        String cachedContent = new String(content);
+                        dtdCache.put(systemId, cachedContent);
+                    } else if (inputSource.getCharacterStream() != null) {
+                        // Read character stream and cache it
+                        String cachedContent = new BufferedReader(inputSource.getCharacterStream()).lines().collect(Collectors.joining("\n"));
+                        dtdCache.put(systemId, cachedContent);
+                    } else if (inputSource.getSystemId() != null) {
+                        dtdCache.put(systemId, inputSource.getSystemId());
+                    }
+                }
+            }
+            return new InputSource(new StringReader(dtdCache.get(systemId)));
         }
     }
 }

@@ -1,6 +1,7 @@
 package com.analysis.corev2.Visitors.Relation;
 
 import com.analysis.corev2.Entitys.DTO.RecordDTO;
+import com.analysis.corev2.Enums.EntranceEnums;
 import com.analysis.corev2.Enums.JdkVersionEnum;
 import com.analysis.tools.Utils.BasicUtil;
 import com.analysis.tools.Utils.FilterUtils;
@@ -103,12 +104,12 @@ public class RelationClassVisitor extends ClassVisitor {
 
     @Override
     public AnnotationVisitor visitAnnotation(String descriptor, boolean visiable){
-        if(FilterUtils.isControllerAnnotation(descriptor)){
+        if(EntranceEnums.isControllerAnnotation(descriptor)){
             // controller类
             recordDTO.getControllerRecord().putControlClass(className);
             isController = true;
         }
-        if(FilterUtils.isRequestAnnotation(descriptor)){
+        if(EntranceEnums.isRequestAnnotation(descriptor)){
             hasRequestMapping = true;
             requestMappingValue = ConcurrentHashMap.newKeySet();
             Set<String> parentPath = ConcurrentHashMap.newKeySet();

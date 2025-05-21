@@ -9,20 +9,35 @@ public interface BaseHandler {
     /**
      * RecordClassVisitor::visitAnnotation阶段的处理过程
      */
-    void annotationHandle(HandleDTO<?> handleDTO);
+    void recordClassVisitAnnotationHandle(HandleDTO<?> handleDTO);
 
     /**
-     * RecordClassVisitor::visitMethod阶段的处理过程
+     * RecordClassVisitor::visitMethod 阶段的处理过程
      */
-    void methodHandle(HandleDTO<?> handleDTO);
+    void recordClassVisitMethodHandle(HandleDTO<?> handleDTO);
 
     /**
-     * RecordClassVisitor::visit阶段的处理过程
+     * RecordClassVisitor::visit 阶段的处理过程
      */
-    void classHandle(HandleDTO<?> handleDTO);
+    void recordClassVisitClassHandle(HandleDTO<?> handleDTO);
 
     /**
-     * RecordMethodVisitor::visitAnnotation阶段的处理过程
+     * RecordMethodVisitor::visitAnnotation 阶段的处理过程
      */
-    void methodAnnotationHandle(HandleDTO<?> handleDTO);
+    void recordMethodVisitAnnotationHandle(HandleDTO<?> handleDTO);
+
+    /**
+     * RecordAnnotationVisitor::visitArray 阶段的处理过程
+     */
+    void recordAnnotationVisitArrayHandle(HandleDTO<?> handleDTO);
+
+    /**
+     * RecordAnnotationVisitor::visit 阶段的处理过程
+     */
+    void recordAnnotationVisitHandle(HandleDTO<?> handleDTO);
+
+    /**
+     * RecordAnnotationVisitor::visitEnd 阶段的处理过程
+     */
+    void recordAnnotationVisitEndHandle(HandleDTO<?> handleDTO);
 }

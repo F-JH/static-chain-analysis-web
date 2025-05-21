@@ -75,6 +75,7 @@ public enum EntranceEnums {
     );
     @Getter
     private static final List<EntranceEnums> needHandleEnum = List.of(
+            DUBBO_SERVICE,
             KAFKA_LISTENER
     );
 

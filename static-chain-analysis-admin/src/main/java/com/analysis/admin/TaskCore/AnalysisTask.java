@@ -121,6 +121,7 @@ public class AnalysisTask extends BaseTaskExecutor {
                 // 测试链路，直接返回
                 return Response.success(response);
             }
+            log.info("解析调用链完毕，开始生成报告");
             Set<String> apis = new HashSet<>();
             relationShips.getResult().forEach((key, value) -> {
 //                ChainNode startNode = value.getFirst();
@@ -148,8 +149,9 @@ public class AnalysisTask extends BaseTaskExecutor {
             }
             analysisTaskDTO.getTaskInfo().setStatus(TaskStatus.SUCCESS.code);
             taskInfoMapper.updateTaskInfo(analysisTaskDTO.getTaskInfo());
+            log.info("解析任务执行成功");
         } catch (Exception e) {
-            log.error("analysis error: " + e.getMessage());
+            log.error("analysis error: {}", e.getMessage());
             analysisTaskDTO.getTaskInfo().setStatus(TaskStatus.FAILD.code);
             taskInfoMapper.updateTaskInfo(analysisTaskDTO.getTaskInfo());
             throw new RuntimeException(e);

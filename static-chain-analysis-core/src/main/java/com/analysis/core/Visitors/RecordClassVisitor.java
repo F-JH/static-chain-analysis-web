@@ -1,5 +1,6 @@
 package com.analysis.core.Visitors;
 
+import com.analysis.core.Enums.EntranceEnums;
 import com.analysis.core.Enums.JdkVersionEnum;
 import com.analysis.core.Recorders.AbstractRecord;
 import com.analysis.core.Recorders.DubboRecord;
@@ -87,7 +88,7 @@ public class RecordClassVisitor extends ClassVisitor {
 
     @Override
     public AnnotationVisitor visitAnnotation(String descriptor, boolean visiable){
-        if(FilterUtils.isDubboAnnotation(descriptor)){
+        if(EntranceEnums.isDubboAnnotation(descriptor)){
             isDubbo = true;
         }
         return super.visitAnnotation(descriptor, visiable);

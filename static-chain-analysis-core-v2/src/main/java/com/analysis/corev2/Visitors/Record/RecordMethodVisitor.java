@@ -14,6 +14,7 @@ import java.util.List;
 
 public class RecordMethodVisitor extends AdviceAdapter {
 
+    private final JdkVersionEnum jdkVersion;
     private final RecordDTO recordDTO;
     private final List<BaseHandler> handlers;
     private final String className;
@@ -21,6 +22,7 @@ public class RecordMethodVisitor extends AdviceAdapter {
 
     public RecordMethodVisitor(JdkVersionEnum jdkVersion, RecordDTO recordDTO, List<BaseHandler> handlers, MethodVisitor mv, String className, int access, String methodName, String desc){
         super(jdkVersion.getCode(), mv, access, methodName, desc);
+        this.jdkVersion = jdkVersion;
         this.recordDTO = recordDTO;
         this.handlers = handlers;
         this.className = className;
@@ -42,8 +44,8 @@ public class RecordMethodVisitor extends AdviceAdapter {
             HandleDTO<MethodAnnotationHandleDTO> handleDTO = new HandleDTO<>(HandleTypeEnum.METHOD_ANNOTATION_HANDLE, new MethodAnnotationHandleDTO(
                     descriptor, visiable, recordDTO, className, methodName
             ));
-            handler.methodAnnotationHandle(handleDTO);
+            handler.recordMethodVisitAnnotationHandle(handleDTO);
         });
-        return super.visitAnnotation(descriptor, visiable);
+        return new RecordAnnotationVisitor(jdkVersion, super.visitAnnotation(descriptor, visiable), recordDTO, handlers, className, methodName);
     }
 }
