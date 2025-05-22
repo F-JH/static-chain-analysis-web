@@ -14,6 +14,7 @@ import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.MethodVisitor;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -40,6 +41,19 @@ public class RecordClassVisitor extends ClassVisitor {
         this.jdkVersionEnum = jdkVersion;
         this.recordDTO = recordDTO;
         handlers = new ArrayList<>();
+        EntranceEnums.getNeedHandleEnum()
+                .forEach(entrance -> {
+                    Class<? extends BaseHandler> cls = entrance.getHandler();
+                    if (cls != null) {
+                        try{
+                            BaseHandler handler = cls.getDeclaredConstructor().newInstance();
+                            handlers.add(handler);
+                        } catch (InvocationTargetException | InstantiationException | IllegalAccessException |
+                                 NoSuchMethodException e) {
+                            throw new RuntimeException(e);
+                        }
+                    }
+                });
     }
 
     @Override
@@ -85,21 +99,12 @@ public class RecordClassVisitor extends ClassVisitor {
 
     @Override
     public AnnotationVisitor visitAnnotation(String descriptor, boolean visible){
-        EntranceEnums.getNeedHandleEnum()
-                .forEach(entrance -> {
-                    Class<? extends BaseHandler> cls = entrance.getHandler();
-                    if (cls != null) {
-                        try {
-                            BaseHandler handler = cls.getDeclaredConstructor().newInstance();
-                            handlers.add(handler);
-                            handler.recordClassVisitAnnotationHandle(new HandleDTO<>(HandleTypeEnum.ANNOTATION_HANDLE, new ClassAnnotationHandleDTO(
-                                    descriptor, visible, className, recordDTO, isInterface, isAbstract
-                            )));
-                        } catch (Exception e) {
-                            log.error("Error creating handler instance: {}", e.getMessage());
-                        }
-                    }
-                });
+        handlers.forEach(handler -> {
+            HandleDTO<ClassAnnotationHandleDTO> handleDTO = new HandleDTO<>(HandleTypeEnum.ANNOTATION_HANDLE, new ClassAnnotationHandleDTO(
+                    descriptor, visible, className, recordDTO, isInterface, isAbstract
+            ));
+            handler.recordClassVisitAnnotationHandle(handleDTO);
+        });
         return new RecordAnnotationVisitor(jdkVersionEnum, super.visitAnnotation(descriptor, visible), recordDTO, handlers, className, null);
     }
 }

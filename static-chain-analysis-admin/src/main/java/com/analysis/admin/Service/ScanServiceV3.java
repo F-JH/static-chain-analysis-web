@@ -39,16 +39,27 @@ public class ScanServiceV3 {
     @Resource(name = "readClassBytesThreadPool")
     private ThreadPoolExecutor readClassBytesThreadPool;
 
-    public RecordDTO recordProjectClass(JdkVersionEnum jdkVersionEnum, List<String> modules) throws IOException {
+    @Resource(name = "cpuTaskThreadPool")
+    private ThreadPoolExecutor cpuTaskThreadPool;
+
+    public RecordDTO recordProjectClass(JdkVersionEnum jdkVersionEnum, List<String> modules) throws IOException, InterruptedException {
         RecordDTO recordDTO = new RecordDTO();
+        List<Future<?>> futures = new ArrayList<>();
 
         for (String module : modules){
             String rootDir = module + URL_SPLIT + TARGET;
             List<String> filePaths = FileUtil.scanForDirectory(rootDir);
             for (String filePath : filePaths){
-                ChainUtils.scanForClassName(jdkVersionEnum, FileUtils.readFileToByteArray(new File(filePath)), recordDTO);
+                futures.add(cpuTaskThreadPool.submit(() -> {
+                    try {
+                        ChainUtils.scanForClassName(jdkVersionEnum, FileUtils.readFileToByteArray(new File(filePath)), recordDTO);
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                }));
             }
         }
+        ThreadUtil.waitForCompletion("记录项目入口", futures);
 
         return recordDTO;
     }
