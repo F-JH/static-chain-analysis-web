@@ -109,7 +109,7 @@ public class AnalysisTask extends BaseTaskExecutor {
                         .currentClassName(className)
                         .currentMethodName(methodName)
                         .build();
-                futures.put(className + METHOD_SPLIT + method, taskThreadPool.submit(() -> {
+                futures.put(method, taskThreadPool.submit(() -> {
                     // 解析调用链
                     return ChainUtils.getChainFromUpdateMethod(startNode, recorders);
                 }));
