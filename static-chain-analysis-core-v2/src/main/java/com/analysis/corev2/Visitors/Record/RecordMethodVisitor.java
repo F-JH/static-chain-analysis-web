@@ -6,6 +6,7 @@ import com.analysis.corev2.Entitys.DTO.RecordDTO;
 import com.analysis.corev2.Enums.HandleTypeEnum;
 import com.analysis.corev2.Enums.JdkVersionEnum;
 import com.analysis.corev2.Handler.BaseHandler;
+import com.analysis.tools.Utils.BasicUtil;
 import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.commons.AdviceAdapter;
@@ -26,7 +27,7 @@ public class RecordMethodVisitor extends AdviceAdapter {
         this.recordDTO = recordDTO;
         this.handlers = handlers;
         this.className = className;
-        this.methodName = methodName;
+        this.methodName = BasicUtil.getMethodSignatureName(methodName, desc);
     }
 
     @Override
