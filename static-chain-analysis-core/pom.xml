@@ -9,7 +9,6 @@
         <version>1.0-SNAPSHOT</version>
     </parent>
 
-    <groupId>com.hsf.core</groupId>
     <artifactId>static-chain-analysis-core</artifactId>
 
     <properties>
@@ -61,5 +60,4 @@
             <version>1.0-SNAPSHOT</version>
         </dependency>
     </dependencies>
-
 </project>

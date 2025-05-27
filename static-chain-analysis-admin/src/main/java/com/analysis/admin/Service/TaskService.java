@@ -16,12 +16,10 @@ import com.analysis.admin.Pojo.Requests.CompareInfo;
 import com.analysis.admin.Pojo.Requests.TaskExecutionRequest;
 import com.analysis.admin.TaskCore.Interface.CallBack;
 import com.analysis.admin.TaskCore.Interface.PreRun;
-import com.analysis.core.Services.ScanService;
 import com.analysis.tools.Utils.BasicUtil;
 import com.analysis.tools.gittool.GitUtils;
 import org.apache.commons.io.FileUtils;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 

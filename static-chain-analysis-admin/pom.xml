@@ -71,7 +71,7 @@
         </dependency>
         <dependency>
             <groupId>com.hsf.static.analysis</groupId>
-            <artifactId>static-chain-analysis-core-v2</artifactId>
+            <artifactId>static-chain-analysis-core</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>
     </dependencies>

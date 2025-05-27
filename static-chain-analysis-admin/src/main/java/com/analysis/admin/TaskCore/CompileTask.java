@@ -60,10 +60,11 @@ public class CompileTask extends BaseTaskExecutor {
             InvocationResult result = invoker.execute(invocationRequest);
             if (result.getExitCode() == 0){
                 compileTaskDTO.getCallBack().setResult(true);
+                log.info(projectDir + " 编译完成！");
             }else {
                 compileTaskDTO.getCallBack().setResult(false);
+                log.info(projectDir + " 编译失败！");
             }
-            log.info(projectDir + " 编译成功！");
             compileTaskDTO.getTaskInfo().setStatus(TaskStatus.SUCCESS.code);
             compileTaskDTO.getTaskInfoMapper().updateTaskInfo(compileTaskDTO.getTaskInfo());
         }catch (MavenInvocationException e){

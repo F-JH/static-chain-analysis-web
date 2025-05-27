@@ -11,14 +11,11 @@ import com.analysis.admin.Pojo.Requests.TaskExecutionRequest;
 import com.analysis.admin.Pojo.Responses.TaskExecutionResponse;
 import com.analysis.admin.Service.ScanServiceV3;
 import com.analysis.admin.TaskCore.Base.BaseTaskExecutor;
-import com.analysis.corev2.Entitys.Chain.ChainNode;
-import com.analysis.corev2.Entitys.DTO.RecordDTO;
-import com.analysis.corev2.Enums.JdkVersionEnum;
-import com.analysis.corev2.Recorders.Entrances.*;
-import com.analysis.corev2.Recorders.Relation.RelationRecord;
-import com.analysis.corev2.Recorders.Relation.RelationReverseRecord;
-import com.analysis.corev2.Utils.ChainUtils;
-import com.analysis.corev2.Utils.ParseUtils;
+import com.analysis.core.Entitys.Chain.ChainNode;
+import com.analysis.core.Entitys.DTO.RecordDTO;
+import com.analysis.core.Enums.JdkVersionEnum;
+import com.analysis.core.Utils.ChainUtils;
+import com.analysis.core.Utils.ParseUtils;
 import com.analysis.tools.Pojo.Response.Pair;
 import com.analysis.tools.Utils.BasicUtil;
 import com.analysis.tools.Utils.FileUtil;
@@ -31,7 +28,6 @@ import javax.annotation.Resource;
 import java.util.*;
 import java.util.concurrent.Future;
 import java.util.concurrent.ThreadPoolExecutor;
-import java.util.stream.Collectors;
 
 import static com.analysis.tools.Config.Code.*;
 

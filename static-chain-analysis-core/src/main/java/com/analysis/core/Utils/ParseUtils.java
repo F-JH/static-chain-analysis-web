@@ -1,10 +1,10 @@
 package com.analysis.core.Utils;
 
+import com.analysis.core.Visitors.Parse.ParseMethodVisitor;
 import com.github.javaparser.StaticJavaParser;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.Node;
 import com.github.javaparser.ast.body.MethodDeclaration;
-import com.analysis.core.Visitors.ParseMethodVisitor;
 
 import java.io.File;
 import java.io.FileNotFoundException;

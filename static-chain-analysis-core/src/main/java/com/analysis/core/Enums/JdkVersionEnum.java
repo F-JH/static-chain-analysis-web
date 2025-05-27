@@ -1,7 +1,6 @@
 package com.analysis.core.Enums;
 
 import lombok.AllArgsConstructor;
-import lombok.Data;
 import lombok.Getter;
 
 import static org.objectweb.asm.Opcodes.*;

@@ -1,5 +1,9 @@
 package com.analysis.core.Enums;
 
+import com.analysis.core.Handler.BaseHandler;
+import com.analysis.core.Handler.DubboHandler;
+import com.analysis.core.Handler.HttpHandler;
+import com.analysis.core.Handler.KafkaHandler;
 import lombok.Getter;
 
 import java.util.List;
@@ -10,7 +14,7 @@ import java.util.List;
 @Getter
 public enum EntranceEnums {
     // Request的注解
-    REQUEST_MAPPING("Lorg/springframework/web/bind/annotation/RequestMapping;", "RequestMapping"),
+    REQUEST_MAPPING("Lorg/springframework/web/bind/annotation/RequestMapping;", "RequestMapping", HttpHandler.class),
     GET_MAPPING("Lorg/springframework/web/bind/annotation/GetMapping;", "GetMapping"),
     POST_MAPPING("Lorg/springframework/web/bind/annotation/PostMapping;", "PostMapping"),
     DELETE_MAPPING("Lorg/springframework/web/bind/annotation/DeleteMapping;", "DeleteMapping"),
@@ -24,22 +28,32 @@ public enum EntranceEnums {
     CONTROLLER("Lorg/springframework/stereotype/Controller;", "Controller"),
 
     // DubboService 的注解
-    DUBBO_SERVICE("Lorg/apache/dubbo/config/annotation/DubboService;", "DubboService"),
+    DUBBO_SERVICE("Lorg/apache/dubbo/config/annotation/DubboService;", "DubboService", DubboHandler.class),
     ALIBABA_DUBBO_SERVICE("Lcom/alibaba/dubbo/config/annotation/Service;", "AlibabaDubboService"),
     APACHE_DUBBO_SERVICE("Lorg/apache/dubbo/config/annotation/Service;", "ApacheDubboService"),
 
     // Kafka的注解
-    KAFKA_LISTENER("Lorg/springframework/kafka/annotation/KafkaListener;", "KafkaListener"),
+    KAFKA_LISTENER("Lorg/springframework/kafka/annotation/KafkaListener;", "KafkaListener", KafkaHandler.class),
+
+    // lambda句柄
+    LAMBDA_HANDLER("java/lang/invoke/LambdaMetafactory", "LambdaMetafactory"),
     ;
 
     private final String code;
     private final String desc;
+    private final Class<? extends BaseHandler> handler;
 
     EntranceEnums(String code, String desc) {
         this.code = code;
         this.desc = desc;
+        this.handler = null;
     }
 
+    EntranceEnums(String code, String desc, Class<? extends BaseHandler> handler) {
+        this.code = code;
+        this.desc = desc;
+        this.handler = handler;
+    }
 
     private static List<EntranceEnums> requestAnnotation = List.of(
             REQUEST_MAPPING,
@@ -67,6 +81,11 @@ public enum EntranceEnums {
     private static final List<EntranceEnums> needHandleEnum = List.of(
             DUBBO_SERVICE,
             KAFKA_LISTENER
+    );
+
+    @Getter
+    private static final List<EntranceEnums> needRelationHandleEnum = List.of(
+            REQUEST_MAPPING
     );
 
     public static boolean isControllerAnnotation(String annoDesc){
