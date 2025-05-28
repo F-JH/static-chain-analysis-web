@@ -139,7 +139,6 @@ public class ChainUtils {
                 );
                 result.addAll(newMethods);
             }
-            log.info("检索所有mybatis xml配置");
             String oldResource = baseModule + URL_SPLIT + RESOURCES;
             String newResource = module + URL_SPLIT + RESOURCES;
 

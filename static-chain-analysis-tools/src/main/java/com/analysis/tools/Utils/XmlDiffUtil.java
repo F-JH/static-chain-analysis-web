@@ -12,9 +12,9 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 import java.io.*;
+import java.net.URL;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
 
 import static com.analysis.tools.Config.Code.*;
 
@@ -23,6 +23,7 @@ public class XmlDiffUtil {
 
     public XmlDiffUtil(File file) throws DocumentException {
         SAXReader reader = new SAXReader();
+        reader.setEntityResolver(new SAXEntityResolver(file));
         Document document = reader.read(file);
         root = document.getRootElement();
     }
@@ -35,9 +36,11 @@ public class XmlDiffUtil {
      */
     public static List<String> compireXml(String oldFile, String newFile) throws DocumentException {
         SAXReader reader = new SAXReader();
-        reader.setEntityResolver(new SAXEntityResolver(reader.getEntityResolver()));
-        Document oldDocument = reader.read(new File(oldFile));
-        Document newDocument = reader.read(new File(newFile));
+        File oldFileObj = new File(oldFile);
+        File newFileObj = new File(newFile);
+        reader.setEntityResolver(new SAXEntityResolver(newFileObj));
+        Document oldDocument = reader.read(oldFileObj);
+        Document newDocument = reader.read(newFileObj);
         Element oldRoot = oldDocument.getRootElement();
         Element newRoot = newDocument.getRootElement();
         String className = newRoot.attribute("namespace").getStringValue();
@@ -129,35 +132,50 @@ public class XmlDiffUtil {
     }
 
     protected static class SAXEntityResolver implements EntityResolver, Serializable {
-        protected EntityResolver resolver;
+        private String uriPrefix;
         private static final Map<String, String> dtdCache = new ConcurrentHashMap<>();
 
-        public SAXEntityResolver(EntityResolver resolver) {
-            if (resolver == null) {
-                throw new IllegalArgumentException("EntityResolver cannot be null");
+        public SAXEntityResolver(File file) {
+            String path = file.getAbsolutePath();
+            if (path != null) {
+                StringBuffer sb = new StringBuffer("file://");
+                if (!path.startsWith(File.separator)) {
+                    sb.append("/");
+                }
+
+                path = path.replace('\\', '/');
+                sb.append(path);
+                String systemId = sb.toString();
+                if (systemId != null && systemId.length() > 0) {
+                    int idx = systemId.lastIndexOf(47);
+                    if (idx > 0) {
+                        uriPrefix = systemId.substring(0, idx + 1);
+                    }
+                }
             }
-            this.resolver = resolver;
         }
 
         public InputSource resolveEntity(String publicId, String systemId) throws IOException, SAXException {
             if (!dtdCache.containsKey(systemId)) {
-                InputSource inputSource = resolver.resolveEntity(publicId, systemId);
-                if (inputSource != null) {
-                    if (inputSource.getByteStream() != null) {
-                        // Read byte stream and cache it
-                        byte[] content = inputSource.getByteStream().readAllBytes();
+                String path = systemId;
+                if (uriPrefix != null && systemId.indexOf(58) <= 0) {
+                    path = uriPrefix + systemId;
+                }
+                if (path.startsWith("http")) {
+                    try (InputStream inputStream = new URL(path).openStream()) {
+                        // 如果dtd是http，则保存下来
+                        byte[] content = inputStream.readAllBytes();
                         String cachedContent = new String(content);
                         dtdCache.put(systemId, cachedContent);
-                    } else if (inputSource.getCharacterStream() != null) {
-                        // Read character stream and cache it
-                        String cachedContent = new BufferedReader(inputSource.getCharacterStream()).lines().collect(Collectors.joining("\n"));
-                        dtdCache.put(systemId, cachedContent);
-                    } else if (inputSource.getSystemId() != null) {
-                        dtdCache.put(systemId, inputSource.getSystemId());
+                    } catch (IOException e) {
+                        throw new SAXException("Failed to read DTD from URL: " + systemId, e);
                     }
+                }else{
+                    return new InputSource(path);
                 }
             }
-            return new InputSource(new StringReader(dtdCache.get(systemId)));
+            InputStream dtdStream = new ByteArrayInputStream(dtdCache.get(systemId).getBytes());
+            return new InputSource(dtdStream);
         }
     }
 }
