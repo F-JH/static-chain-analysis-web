@@ -3,18 +3,18 @@ server:
 spring:
     datasource:
         analysis:
-            username: root
-            password: 972583048
-            jdbc-url: jdbc:mysql://127.0.0.1:3306/Analysis?allowMultiQueries=true&serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf-8
+            username: user
+            password: password
+            jdbc-url: jdbc:mysql://mysql.example.com/Analysis?allowMultiQueries=true&serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf-8
             driver-class-name: com.mysql.cj.jdbc.Driver
     jackson:
         date-format: yyyy-MM-dd HH:mm:ss
         time-zone: Asia/Shanghai
 env:
     tmpDir: tmp
-    mavenHome: /Users/10234614/Applications/IntelliJ IDEA Ultimate.app/Contents/plugins/maven/lib/maven3
+    mavenHome: /path/to/maven
     mavenSettings: /path/to/settings.xml
-    javaHome: /Library/Java/JavaVirtualMachines/jdk-17.jdk/Contents/Home
+    javaHome: /path/to/java_home
 logging:
     level:
         root: info
