@@ -21,6 +21,7 @@ public class RecordDTO {
     private RelationRecord relationRecord;
     private RelationReverseRecord relationReverseRecord;
     private KafkaRecord kafkaRecord;
+    private GrpcRecord grpcRecord;
 
     public RecordDTO(){
         interfaceRecord = new InterfaceRecord();
@@ -32,6 +33,7 @@ public class RecordDTO {
         relationRecord = new RelationRecord();
         relationReverseRecord = new RelationReverseRecord();
         kafkaRecord = new KafkaRecord();
+        grpcRecord = new GrpcRecord();
     }
 
     /*
@@ -53,6 +55,11 @@ public class RecordDTO {
         if (kafkaRecord.contains(fullMethodName)){
             String topic = kafkaRecord.getKafkaTopic(fullMethodName);
             return new Entrance(KAFKA, Set.of(topic));
+        }
+
+        // grpc
+        if (grpcRecord.contains(fullMethodName)) {
+            return new Entrance(GRPC, Set.of(fullMethodName));
         }
 
         return null;

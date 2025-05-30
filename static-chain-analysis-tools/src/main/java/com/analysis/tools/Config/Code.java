@@ -18,6 +18,7 @@ public class Code {
     public final static String DUBBO = "dubbo";
     public final static String HTTP = "http";
     public final static String KAFKA = "kafka";
+    public final static String GRPC = "grpc";
 
 
     public final static Map<String, String> descriptorMap = new HashMap<>();
