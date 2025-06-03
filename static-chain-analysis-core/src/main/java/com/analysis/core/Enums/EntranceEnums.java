@@ -1,9 +1,6 @@
 package com.analysis.core.Enums;
 
-import com.analysis.core.Handler.BaseHandler;
-import com.analysis.core.Handler.DubboHandler;
-import com.analysis.core.Handler.HttpHandler;
-import com.analysis.core.Handler.KafkaHandler;
+import com.analysis.core.Handler.*;
 import lombok.Getter;
 
 import java.util.List;
@@ -34,6 +31,9 @@ public enum EntranceEnums {
 
     // Kafka的注解
     KAFKA_LISTENER("Lorg/springframework/kafka/annotation/KafkaListener;", "KafkaListener", KafkaHandler.class),
+
+    //GRPC的入口标识
+    GRPC_SERVICE("Lnet/devh/boot/grpc/server/service/GrpcService;", "GrpcService", GrpcHandler.class),
 
     // lambda句柄
     LAMBDA_HANDLER("java/lang/invoke/LambdaMetafactory", "LambdaMetafactory"),
@@ -77,10 +77,14 @@ public enum EntranceEnums {
     private static List<EntranceEnums> kafkaAnnotation = List.of(
             KAFKA_LISTENER
     );
+    private static List<EntranceEnums> grpcAnnotation = List.of(
+            GRPC_SERVICE
+    );
     @Getter
     private static final List<EntranceEnums> needHandleEnum = List.of(
             DUBBO_SERVICE,
-            KAFKA_LISTENER
+            KAFKA_LISTENER,
+            GRPC_SERVICE
     );
 
     @Getter
@@ -113,6 +117,13 @@ public enum EntranceEnums {
         if(null == annoDesc)
             return false;
         return kafkaAnnotation.stream()
+                .anyMatch(recordEnum -> recordEnum.getCode().equals(annoDesc));
+    }
+
+    public static boolean isGrpcAnnotation(String annoDesc){
+        if(null == annoDesc)
+            return false;
+        return grpcAnnotation.stream()
                 .anyMatch(recordEnum -> recordEnum.getCode().equals(annoDesc));
     }
 }
