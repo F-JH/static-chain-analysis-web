@@ -11,4 +11,4 @@
 注意：
 
 * 所有分析的代码会clone并保存在 tmp/ 目录下
-* 由于不太会用jgit，目前只会通过 username-password 的方式管理git项目，虽然页面上有可以配置公钥，但没用
+* 关于凭证：如果项目的git url是http格式，则会使用 [username-password] 凭证拉取，如果是ssh链接（比如 git@github.com:xxxxxx）则必须使用公钥+私钥拉取代码，注意是公钥和私钥都要填
