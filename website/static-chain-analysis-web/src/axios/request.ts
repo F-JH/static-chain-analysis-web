@@ -63,7 +63,10 @@ service.interceptors.request.use(config => {
         config.params = {};
         config.url = url;
     }
-    // config.url = config.url?.replace(/^\/api/, '') // 打包部署到springboot需要手动修改url
+    if (import.meta.env.MODE === 'production') {
+        // 打包部署到springboot需要手动修改url
+        config.url = config.url?.replace(/^\/api/, '')
+    }
     return config
 }, error => {
     console.log(error)
