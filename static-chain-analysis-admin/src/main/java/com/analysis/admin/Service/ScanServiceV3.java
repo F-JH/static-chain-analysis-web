@@ -75,7 +75,7 @@ public class ScanServiceV3 {
         File compareRootSource = new File(compareDir + URL_SPLIT + SOURCE);
 
         Stack<FileNode> start = new Stack<>();
-        if(compareRootSource.exists() && compareRootPom.listFiles().length > 0){
+        if(compareRootSource.exists() && compareRootSource.listFiles().length > 0){
             // 根目录有源码
             if(baseRootSource.exists() && baseRootSource.listFiles().length > 0){
                 // 旧项目根目录也TM有源码

@@ -63,7 +63,7 @@ public class CompileTask extends BaseTaskExecutor {
                 log.info(projectDir + " 编译完成！");
             }else {
                 compileTaskDTO.getCallBack().setResult(false);
-                log.info(projectDir + " 编译失败！");
+                log.info(projectDir + " 编译失败: " + result.getExecutionException().getMessage());
             }
             compileTaskDTO.getTaskInfo().setStatus(TaskStatus.SUCCESS.code);
             compileTaskDTO.getTaskInfoMapper().updateTaskInfo(compileTaskDTO.getTaskInfo());
