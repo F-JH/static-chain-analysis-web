@@ -55,7 +55,16 @@ public class CompileTask extends BaseTaskExecutor {
         if (!StringUtil.isBlank(compileTaskDTO.getJavaHome())){
             invocationRequest.setJavaHome(new File(compileTaskDTO.getJavaHome()));
         }
-
+        invoker.setOutputHandler(new InvocationOutputHandler() {
+            @Override
+            public void consumeLine(String line) throws IOException {
+                if(line.toLowerCase().contains("error")){
+                    log.error(projectDir + ": " + line);
+                }else {
+                    log.debug(projectDir + ": " + line);
+                }
+            }
+        });
         try{
             InvocationResult result = invoker.execute(invocationRequest);
             if (result.getExitCode() == 0){
@@ -63,7 +72,7 @@ public class CompileTask extends BaseTaskExecutor {
                 log.info(projectDir + " 编译完成！");
             }else {
                 compileTaskDTO.getCallBack().setResult(false);
-                log.info(projectDir + " 编译失败: " + result.getExecutionException().getMessage());
+                log.info(projectDir + " 编译失败: ");
             }
             compileTaskDTO.getTaskInfo().setStatus(TaskStatus.SUCCESS.code);
             compileTaskDTO.getTaskInfoMapper().updateTaskInfo(compileTaskDTO.getTaskInfo());
