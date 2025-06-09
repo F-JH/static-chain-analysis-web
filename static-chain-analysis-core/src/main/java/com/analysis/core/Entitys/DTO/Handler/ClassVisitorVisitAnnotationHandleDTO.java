@@ -4,6 +4,8 @@ import com.analysis.core.Entitys.DTO.RecordDTO;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
+import java.util.Set;
+
 @Data
 @AllArgsConstructor
 public class ClassVisitorVisitAnnotationHandleDTO {
@@ -15,4 +17,5 @@ public class ClassVisitorVisitAnnotationHandleDTO {
     RecordDTO recordDTO;
     boolean isInterface;
     boolean isAbstract;
+    private Set<String> requestMappingValue;
 }

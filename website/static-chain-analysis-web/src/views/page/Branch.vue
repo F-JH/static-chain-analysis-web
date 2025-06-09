@@ -299,7 +299,6 @@ export default defineComponent({
                 })
                 this.getTree()
             })
-          this.notRealized();
         },
         editItem(data:any){this.notRealized()},
         removeTabItem(nodeId:number | string){

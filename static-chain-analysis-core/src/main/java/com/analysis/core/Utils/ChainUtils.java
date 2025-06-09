@@ -66,8 +66,8 @@ public class ChainUtils {
             current.setPrevs(prevs);
             List<String> currentReverseMethod = relationReverseRecord.getRelationReverseRecord(current.getCurrentClassName(), current.getCurrentMethodName());
             RecordDTO.Entrance entrance = recordDTO.checkEntrance(current.getCurrentClassName(), current.getCurrentMethodName());
-            log.debug("当前方法：{}， 入口函数：{}", current.getCurrentClassName() + METHOD_SPLIT + current.getCurrentMethodName(), entrance);
             if (entrance != null){
+                log.info("当前方法：{}， 入口函数：{}", node.getCurrentClassName() + METHOD_SPLIT + node.getCurrentMethodName(), entrance);
                 entrances.add(entrance);
             }else if (currentReverseMethod != null && !exitMethods.contains(current.getCurrentClassName() + METHOD_SPLIT + current.getCurrentMethodName())){
                 exitMethods.add(current.getCurrentClassName() + METHOD_SPLIT + current.getCurrentMethodName());

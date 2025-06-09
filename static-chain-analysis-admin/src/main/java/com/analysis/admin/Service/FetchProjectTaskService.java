@@ -11,6 +11,7 @@ import com.analysis.admin.Pojo.Requests.TaskExecutionRequest;
 import com.analysis.admin.Pojo.Entities.FetchInfo;
 import com.analysis.admin.Pojo.Entities.TaskInfo;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -95,7 +96,7 @@ public class FetchProjectTaskService {
         FetchInfo fetchInfo = fetchMapper.getFetchInfo(nodeId);
         // 检查是否存在项目
         ProjectInfo projectInfo = projectInfoMapper.getProjectInfo(nodeId);
-        if (projectInfo != null && projectInfo.getPath() != null){
+        if (projectInfo != null && !StringUtils.isBlank(projectInfo.getPath())){
             File project = new File(projectInfo.getPath());
             if (project.exists() && Objects.requireNonNull(project.listFiles()).length != 0){
                 taskInfo.setType(TaskType.PULL.code);

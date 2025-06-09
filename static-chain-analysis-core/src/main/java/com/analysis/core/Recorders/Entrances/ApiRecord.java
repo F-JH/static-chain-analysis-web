@@ -14,7 +14,11 @@ public class ApiRecord implements Recorder {
     }
 
     public void putApi(String fullMethodName, Set<String> api){
-        record.put(fullMethodName, api);
+        record.computeIfAbsent(fullMethodName, k -> ConcurrentHashMap.newKeySet()).addAll(api);
+    }
+
+    public void putApi(String fullMethodName, String api){
+        record.computeIfAbsent(fullMethodName, k -> ConcurrentHashMap.newKeySet()).add(api);
     }
 
     public Set<String> getApis(String fullMethodName){

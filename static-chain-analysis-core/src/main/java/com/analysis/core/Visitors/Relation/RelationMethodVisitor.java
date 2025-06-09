@@ -21,25 +21,16 @@ public class RelationMethodVisitor extends AdviceAdapter{
     private final String methodName;
     private final String desc;
     private final RecordDTO recordDTO;
-    private final Set<String> parentPath;
-    private Set<String> requestMappingValue;
-    private final Map<String, Set<String>> recordMapping;
     private final JdkVersionEnum jdkVersionEnum;
 
     private final String currentFullMethodName;
 
-    public RelationMethodVisitor(
-        JdkVersionEnum jdkVersionEnum,
-        int access, String methodName, String desc, MethodVisitor mv,
-        RecordDTO recordDTO, String className, Set<String> parentPath, Map<String, Set<String>> recordMapping
-    ){
+    public RelationMethodVisitor(JdkVersionEnum jdkVersionEnum, int access, String methodName, String desc, MethodVisitor mv, RecordDTO recordDTO, String className){
         super(jdkVersionEnum.getCode(), mv, access, methodName, desc);
         this.methodName = methodName;
         this.recordDTO = recordDTO;
         this.desc = desc;
         this.className = className;
-        this.parentPath = parentPath;
-        this.recordMapping = recordMapping;
         this.jdkVersionEnum = jdkVersionEnum;
 
         this.currentFullMethodName = className + METHOD_SPLIT + BasicUtil.getMethodSignatureName(methodName, desc);
@@ -83,19 +74,6 @@ public class RelationMethodVisitor extends AdviceAdapter{
     }
 
     @Override
-    public AnnotationVisitor visitAnnotation(String descriptor, boolean visiable){
-        if(EntranceEnums.isRequestAnnotation(descriptor)){
-            // request的方法
-            recordDTO.getControllerRecord().putControlMethod(className, BasicUtil.getMethodSignatureName(methodName, desc));
-            requestMappingValue = ConcurrentHashMap.newKeySet();
-            // 这里去获取方法的 requestMappingValue
-            // 故而：requestMappingValue记录自己的，parentPath上一级(比如类)传过来的 requestMappingValue
-            return new RelationAnnotationVisitor(jdkVersionEnum, super.visitAnnotation(descriptor, visiable), requestMappingValue, parentPath);
-        }
-        return super.visitAnnotation(descriptor, visiable);
-    }
-
-    @Override
     public void visitTypeInsn(int opcode, String type){
         super.visitTypeInsn(opcode, type);
     }
@@ -107,16 +85,5 @@ public class RelationMethodVisitor extends AdviceAdapter{
         }catch (TypeNotPresentException e){
             return;
         }
-    }
-
-    @Override
-    public void visitEnd(){
-        // 处理一下Mapping
-        if(requestMappingValue!=null){
-            String fullMethodName = className + METHOD_SPLIT + BasicUtil.getMethodSignatureName(methodName, desc);
-            recordMapping.put(fullMethodName, requestMappingValue);
-            recordDTO.getApiRecord().putApi(fullMethodName, requestMappingValue);
-        }
-        super.visitEnd();
     }
 }

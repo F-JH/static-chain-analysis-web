@@ -54,4 +54,12 @@ public class Response<T> {
         );
     }
 
+    public static <T> Response<T> failed(T data, String message){
+        return new Response<>(
+                ResultCode.FAIL.getCode(),
+                message,
+                data
+        );
+    }
+
 }

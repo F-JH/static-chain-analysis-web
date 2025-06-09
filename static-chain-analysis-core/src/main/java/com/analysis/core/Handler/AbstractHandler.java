@@ -21,6 +21,11 @@ public abstract class AbstractHandler implements BaseHandler{
     public void recordMethodVisitAnnotationHandle(HandleDTO<?> handleDTO){}
 
     /**
+     * RecordMethodVisitor::visitEnd 阶段的处理过程
+     */
+    public void recordMethodVisitEndHandle(HandleDTO<?> handleDTO){}
+
+    /**
      * RecordAnnotationVisitor::visitArray 阶段的处理过程
      */
     public void recordAnnotationVisitArrayHandle(HandleDTO<?> handleDTO){}

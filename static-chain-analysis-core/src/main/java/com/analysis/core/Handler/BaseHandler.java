@@ -27,6 +27,11 @@ public interface BaseHandler {
     void recordMethodVisitAnnotationHandle(HandleDTO<?> handleDTO);
 
     /**
+     * RecordMethodVisitor::visitEnd 阶段的处理过程
+     */
+    void recordMethodVisitEndHandle(HandleDTO<?> handleDTO);
+
+    /**
      * RecordAnnotationVisitor::visitArray 阶段的处理过程
      */
     void recordAnnotationVisitArrayHandle(HandleDTO<?> handleDTO);

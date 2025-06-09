@@ -16,7 +16,9 @@ import org.objectweb.asm.MethodVisitor;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import static com.analysis.tools.Config.Code.METHOD_SPLIT;
 import static org.objectweb.asm.Opcodes.ACC_ABSTRACT;
@@ -34,12 +36,15 @@ public class RecordClassVisitor extends ClassVisitor {
     private boolean isAbstract = false;
 
     private final List<BaseHandler> handlers;
+    // 记录类注解上的 requestMapping::Value
+    private Set<String> paths;
 
     public RecordClassVisitor(JdkVersionEnum jdkVersion, ClassVisitor cv, RecordDTO recordDTO) {
         super(jdkVersion.getCode(), cv);
         this.jdkVersionEnum = jdkVersion;
         this.recordDTO = recordDTO;
         handlers = new ArrayList<>();
+        paths = new HashSet<>();
         EntranceEnums.getNeedHandleEnum()
                 .forEach(entrance -> {
                     Class<? extends BaseHandler> cls = entrance.getHandler();
@@ -93,17 +98,17 @@ public class RecordClassVisitor extends ClassVisitor {
             ));
             handler.recordClassVisitMethodHandle(handleDTO);
         });
-        return new RecordMethodVisitor(jdkVersionEnum, recordDTO, handlers, super.visitMethod(access, name, descriptor, signature, exceptions), className, access, name, descriptor);
+        return new RecordMethodVisitor(jdkVersionEnum, recordDTO, handlers, super.visitMethod(access, name, descriptor, signature, exceptions), className, access, name, descriptor, paths);
     }
 
     @Override
     public AnnotationVisitor visitAnnotation(String descriptor, boolean visible){
         handlers.forEach(handler -> {
             HandleDTO<ClassVisitorVisitAnnotationHandleDTO> handleDTO = new HandleDTO<>(HandleTypeEnum.ANNOTATION_HANDLE, new ClassVisitorVisitAnnotationHandleDTO(
-                    descriptor, visible, className, recordDTO, isInterface, isAbstract
+                    descriptor, visible, className, recordDTO, isInterface, isAbstract, paths
             ));
             handler.recordClassVisitAnnotationHandle(handleDTO);
         });
-        return new RecordAnnotationVisitor(jdkVersionEnum, super.visitAnnotation(descriptor, visible), recordDTO, handlers, className, null);
+        return new RecordAnnotationVisitor(jdkVersionEnum, super.visitAnnotation(descriptor, visible), recordDTO, handlers, className, null, paths);
     }
 }

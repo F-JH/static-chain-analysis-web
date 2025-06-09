@@ -12,6 +12,7 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.commons.AdviceAdapter;
 
 import java.util.List;
+import java.util.Set;
 
 public class RecordMethodVisitor extends AdviceAdapter {
 
@@ -20,14 +21,19 @@ public class RecordMethodVisitor extends AdviceAdapter {
     private final List<BaseHandler> handlers;
     private final String className;
     private final String methodName;
+    // 记录自己的requestMappingValue
+//    private final Set<String> paths;
+    // 上一级的requestMappingValue(一般是类的RequestMapping)
+    private final Set<String> parentPaths;
 
-    public RecordMethodVisitor(JdkVersionEnum jdkVersion, RecordDTO recordDTO, List<BaseHandler> handlers, MethodVisitor mv, String className, int access, String methodName, String desc){
+    public RecordMethodVisitor(JdkVersionEnum jdkVersion, RecordDTO recordDTO, List<BaseHandler> handlers, MethodVisitor mv, String className, int access, String methodName, String desc, Set<String> parentPaths) {
         super(jdkVersion.getCode(), mv, access, methodName, desc);
         this.jdkVersion = jdkVersion;
         this.recordDTO = recordDTO;
         this.handlers = handlers;
         this.className = className;
         this.methodName = BasicUtil.getMethodSignatureName(methodName, desc);
+        this.parentPaths = parentPaths;
     }
 
     @Override
@@ -47,6 +53,6 @@ public class RecordMethodVisitor extends AdviceAdapter {
             ));
             handler.recordMethodVisitAnnotationHandle(handleDTO);
         });
-        return new RecordAnnotationVisitor(jdkVersion, super.visitAnnotation(descriptor, visiable), recordDTO, handlers, className, methodName);
+        return new RecordAnnotationVisitor(jdkVersion, super.visitAnnotation(descriptor, visiable), recordDTO, handlers, className, methodName, parentPaths);
     }
 }

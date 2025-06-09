@@ -84,7 +84,8 @@ public enum EntranceEnums {
     private static final List<EntranceEnums> needHandleEnum = List.of(
             DUBBO_SERVICE,
             KAFKA_LISTENER,
-            GRPC_SERVICE
+            GRPC_SERVICE,
+            REQUEST_MAPPING
     );
 
     @Getter

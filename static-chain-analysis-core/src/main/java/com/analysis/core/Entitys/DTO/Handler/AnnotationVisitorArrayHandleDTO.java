@@ -4,6 +4,8 @@ import com.analysis.core.Entitys.DTO.RecordDTO;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
+import java.util.Set;
+
 @Data
 @AllArgsConstructor
 public class AnnotationVisitorArrayHandleDTO {
@@ -14,4 +16,5 @@ public class AnnotationVisitorArrayHandleDTO {
     String className;
     String methodName;
     RecordDTO recordDTO;
+    final Set<String> paths;
 }

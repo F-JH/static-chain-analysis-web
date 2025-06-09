@@ -80,7 +80,9 @@ public class AnalysisTask extends BaseTaskExecutor {
             allModules.addAll(newModules);
             allModules.addAll(normalModules);
 
+            // 第一次遍历字节码文件，主要是记录入口
             RecordDTO recorders = scanService.recordProjectClass(JdkVersionEnum.JDK17, allModules);
+            // 第二次遍历字节码文件，主要是记录调用关系
             scanService.scanRelationShips(JdkVersionEnum.JDK17, allModules, recorders);
 
             log.info("检查更新");
